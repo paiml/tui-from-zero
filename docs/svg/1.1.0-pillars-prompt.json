@@ -1,0 +1,26 @@
+{
+  "video_id": "1.1.0-pillars",
+  "title": "TUI from Zero — three pillars",
+  "subtitle": "render · react · compose — built on aprender-present-terminal",
+  "template": "progressive-reveal",
+  "frame_count": 9,
+  "slot_anchors": [
+    { "frame": 0, "reveal": ["ambient-glow"],                                 "narration": "Black canvas. The space we will fill." },
+    { "frame": 1, "reveal": ["title-bar"],                                    "narration": "TUI from Zero — three pillars." },
+    { "frame": 2, "reveal": ["render-pillar"],                                "narration": "Pillar one. Render. CellBuffer, Widget, DiffRenderer." },
+    { "frame": 3, "reveal": ["arrow-render-react", "react-pillar"],           "narration": "Pillar two. React. init, update, view — the Elm loop." },
+    { "frame": 4, "reveal": ["arrow-react-compose", "compose-pillar"],        "narration": "Pillar three. Compose. Sparkline, CpuGrid, ProcessTable." },
+    { "frame": 5, "reveal": ["platform-strip"],                               "narration": "All three pillars rest on aprender-present-* — from crates.io." },
+    { "frame": 6, "reveal": ["footer-bar"],                                   "narration": "Five modules, ten lessons, twenty-two videos, three contracts." },
+    { "frame": 7, "reveal": [],                                               "narration": "Everything assembled — one frame." },
+    { "frame": 8, "reveal": [],                                               "narration": "Five weeks. Three pillars. Zero JavaScript. Build a ptop." }
+  ],
+  "contracts": [
+    "DETERMINISTIC-MERGE",
+    "MERGE-VALIDATES",
+    "GRID-PROTOCOL-MANIFEST",
+    "SLOTS-REFLECT-PLAN",
+    "FILL-COMPLETE",
+    "FILL-BOUND"
+  ]
+}

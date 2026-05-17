@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GRID PROTOCOL MANIFEST
+  canvas: 1920x1080
+  cell: 120
+  cols: 16
+  rows: 9
+  slots: 9 (title-bar, render-pillar, react-pillar, compose-pillar,
+            arrow-render-react, arrow-react-compose, platform-strip,
+            footer-bar, ambient-glow)
+  reveal: progressive (Frame-0..Frame-8 enable slots in cumulative order)
+  fills:    9 (#0d1117 bg, #161b22 frame, #4a9eff render, #36b37e react,
+               #ffab00 compose, #9f8fef platform, #ff9d1a accent,
+               #a5d6ff atmosphere, #c9d1d9 caption text)
+  shapes:   58 (well over 40-shape floor)
+  named groups: 9
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="render-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a9eff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#0056d2" stop-opacity="0.28"/>
+    </linearGradient>
+    <linearGradient id="react-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#36b37e" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#00875a" stop-opacity="0.28"/>
+    </linearGradient>
+    <linearGradient id="compose-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffab00" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#f38b00" stop-opacity="0.28"/>
+    </linearGradient>
+    <radialGradient id="atmosphere" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4a9eff" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#4a9eff" stop-opacity="0"/>
+    </radialGradient>
+    <style>
+      .h    { font: 700 56px/1.1 "JetBrains Mono", monospace; fill: #ffffff; }
+      .sub  { font: 500 30px/1.2 "JetBrains Mono", monospace; fill: #c9d1d9; }
+      .pillar-title { font: 700 38px/1.1 "JetBrains Mono", monospace; fill: #ffffff; }
+      .m    { font: 500 22px/1.4 "JetBrains Mono", monospace; fill: #c9d1d9; }
+      .label { font: 700 18px/1 "JetBrains Mono", monospace; fill: #ffffff; letter-spacing: 0.08em; }
+      .cap  { font: 500 24px/1.2 "JetBrains Mono", monospace; fill: #c9d1d9; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#0d1117"/>
+
+  <g id="ambient-glow" opacity="1">
+    <circle cx="360"  cy="540" r="360" fill="url(#atmosphere)"/>
+    <circle cx="960"  cy="540" r="360" fill="url(#atmosphere)"/>
+    <circle cx="1560" cy="540" r="360" fill="url(#atmosphere)"/>
+  </g>
+
+  <g id="title-bar" opacity="1">
+    <rect x="60" y="60" width="1800" height="120" rx="14" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+    <circle cx="120" cy="120" r="22" fill="#4a9eff" opacity="0.9"/>
+    <text x="170" y="132" class="h">TUI from Zero — three pillars</text>
+    <text x="170" y="170" class="sub">render · react · compose — built on aprender-present-terminal</text>
+  </g>
+
+  <g id="render-pillar" opacity="0">
+    <rect x="120" y="240" width="500" height="600" rx="20" fill="url(#render-gradient)" stroke="#4a9eff" stroke-width="4"/>
+    <rect x="160" y="290" width="80" height="32" rx="8" fill="#0d1117" stroke="#4a9eff" stroke-width="2"/>
+    <text x="200" y="312" text-anchor="middle" class="label">M1</text>
+    <text x="370" y="320" text-anchor="middle" class="pillar-title">Render</text>
+    <line x1="160" y1="360" x2="580" y2="360" stroke="#4a9eff" stroke-width="2" opacity="0.6"/>
+    <rect x="160" y="390" width="420" height="60" rx="10" fill="#0d1117" stroke="#4a9eff" stroke-width="2"/>
+    <text x="370" y="428" text-anchor="middle" class="m">CellBuffer&lt;Cell&gt;</text>
+    <rect x="160" y="470" width="420" height="60" rx="10" fill="#0d1117" stroke="#4a9eff" stroke-width="2"/>
+    <text x="370" y="508" text-anchor="middle" class="m">DiffRenderer</text>
+    <rect x="160" y="550" width="420" height="60" rx="10" fill="#0d1117" stroke="#4a9eff" stroke-width="2"/>
+    <text x="370" y="588" text-anchor="middle" class="m">Widget · Container</text>
+    <rect x="160" y="650" width="420" height="60" rx="10" fill="#0d1117" stroke="#4a9eff" stroke-width="2"/>
+    <text x="370" y="688" text-anchor="middle" class="m">Row · Column · Block</text>
+    <rect x="160" y="740" width="420" height="60" rx="10" fill="#0d1117" stroke="#4a9eff" stroke-width="2"/>
+    <text x="370" y="778" text-anchor="middle" class="m">tui-rendering-v1.yaml</text>
+  </g>
+
+  <g id="arrow-render-react" opacity="0">
+    <line x1="640" y1="540" x2="700" y2="540" stroke="#a5d6ff" stroke-width="6"/>
+    <polygon points="700,520 740,540 700,560" fill="#a5d6ff"/>
+  </g>
+
+  <g id="react-pillar" opacity="0">
+    <rect x="760" y="240" width="500" height="600" rx="20" fill="url(#react-gradient)" stroke="#36b37e" stroke-width="4"/>
+    <rect x="800" y="290" width="80" height="32" rx="8" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+    <text x="840" y="312" text-anchor="middle" class="label">M2</text>
+    <text x="1010" y="320" text-anchor="middle" class="pillar-title">React</text>
+    <line x1="800" y1="360" x2="1220" y2="360" stroke="#36b37e" stroke-width="2" opacity="0.6"/>
+    <rect x="800" y="390" width="420" height="60" rx="10" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+    <text x="1010" y="428" text-anchor="middle" class="m">init() -&gt; State</text>
+    <rect x="800" y="470" width="420" height="60" rx="10" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+    <text x="1010" y="508" text-anchor="middle" class="m">update(s, Msg) -&gt; State</text>
+    <rect x="800" y="550" width="420" height="60" rx="10" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+    <text x="1010" y="588" text-anchor="middle" class="m">view(s) -&gt; CellBuffer</text>
+    <rect x="800" y="650" width="420" height="60" rx="10" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+    <text x="1010" y="688" text-anchor="middle" class="m">crossterm KeyEvent</text>
+    <rect x="800" y="740" width="420" height="60" rx="10" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+    <text x="1010" y="778" text-anchor="middle" class="m">tui-lifecycle-v1.yaml</text>
+  </g>
+
+  <g id="arrow-react-compose" opacity="0">
+    <line x1="1280" y1="540" x2="1340" y2="540" stroke="#a5d6ff" stroke-width="6"/>
+    <polygon points="1340,520 1380,540 1340,560" fill="#a5d6ff"/>
+  </g>
+
+  <g id="compose-pillar" opacity="0">
+    <rect x="1400" y="240" width="500" height="600" rx="20" fill="url(#compose-gradient)" stroke="#ffab00" stroke-width="4"/>
+    <rect x="1440" y="290" width="80" height="32" rx="8" fill="#0d1117" stroke="#ffab00" stroke-width="2"/>
+    <text x="1480" y="312" text-anchor="middle" class="label">M3</text>
+    <text x="1650" y="320" text-anchor="middle" class="pillar-title">Compose</text>
+    <line x1="1440" y1="360" x2="1860" y2="360" stroke="#ffab00" stroke-width="2" opacity="0.6"/>
+    <rect x="1440" y="390" width="420" height="60" rx="10" fill="#0d1117" stroke="#ffab00" stroke-width="2"/>
+    <text x="1650" y="428" text-anchor="middle" class="m">Sparkline</text>
+    <rect x="1440" y="470" width="420" height="60" rx="10" fill="#0d1117" stroke="#ffab00" stroke-width="2"/>
+    <text x="1650" y="508" text-anchor="middle" class="m">CpuGrid · MemoryBar</text>
+    <rect x="1440" y="550" width="420" height="60" rx="10" fill="#0d1117" stroke="#ffab00" stroke-width="2"/>
+    <text x="1650" y="588" text-anchor="middle" class="m">ProcessTable</text>
+    <rect x="1440" y="650" width="420" height="60" rx="10" fill="#0d1117" stroke="#ffab00" stroke-width="2"/>
+    <text x="1650" y="688" text-anchor="middle" class="m">.prs scene · probar</text>
+    <rect x="1440" y="740" width="420" height="60" rx="10" fill="#0d1117" stroke="#ffab00" stroke-width="2"/>
+    <text x="1650" y="778" text-anchor="middle" class="m">tui-panels-v1.yaml</text>
+  </g>
+
+  <g id="platform-strip" opacity="0">
+    <rect x="120" y="880" width="1680" height="80" rx="14" fill="#161b22" stroke="#9f8fef" stroke-width="3"/>
+    <circle cx="190" cy="920" r="20" fill="#9f8fef" opacity="0.9"/>
+    <text x="230" y="930" class="cap">aprender-present-core · aprender-present-terminal · aprender-present-test (probar)</text>
+    <rect x="1660" y="900" width="120" height="40" rx="8" fill="#0d1117" stroke="#ff9d1a" stroke-width="2"/>
+    <text x="1720" y="928" text-anchor="middle" class="label">crates.io</text>
+  </g>
+
+  <g id="footer-bar" opacity="0">
+    <rect x="120" y="990" width="1680" height="60" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="2"/>
+    <text x="140" y="1028" class="m">5 modules · 10 lessons · 22 videos · 3 named YAML contracts · Lean 4 theorems · 100% line coverage</text>
+  </g>
+</svg>
