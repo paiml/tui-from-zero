@@ -94,11 +94,17 @@ jobs:
 
       - name: Prove M3+M4+M5 panel contracts at runtime
         run: |
-          for bin in sparkline-demo panels-demo scene-demo ptop-mini; do
+          for bin in sparkline-demo panels-demo scene-demo; do
             out=$(cargo run --locked -q --bin "$bin" 2>&1)
             echo "$out"
             echo "$out" | grep -q "tui-panels-v1 holds — OK"
           done
+          # ptop-mini runs an interactive crossterm loop by default;
+          # --ci forces the deterministic single-frame smoke path so
+          # the gate doesn't hang waiting for `q`.
+          out=$(cargo run --locked -q --bin ptop-mini -- --ci 2>&1)
+          echo "$out"
+          echo "$out" | grep -q "tui-panels-v1 holds — OK"
 
       - name: Prove M4-tests rendering contract at runtime
         run: |

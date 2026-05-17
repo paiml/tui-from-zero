@@ -181,8 +181,8 @@ demo:
 	@cargo run --release --bin scene-demo
 	@echo "=== M4 tests: pure-Rust TUI testing ==="
 	@cargo run --release --bin tests-demo
-	@echo "=== M5 ptop-mini: the capstone ==="
-	@cargo run --release --bin ptop-mini
+	@echo "=== M5 ptop-mini: the capstone (single-frame smoke; use 'cargo run --release --bin ptop-mini' for the live loop) ==="
+	@cargo run --release --bin ptop-mini -- --ci
 
 test:
 	PROPTEST_CASES=256 cargo test --workspace --release

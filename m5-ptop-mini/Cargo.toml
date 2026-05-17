@@ -15,6 +15,7 @@ name = "ptop-mini"
 path = "src/main.rs"
 
 [dependencies]
+crossterm = "0.28"
 m1-cellbuffer = { path = "../m1-cellbuffer" }
 m1-widgets = { path = "../m1-widgets" }
 m2-elm-counter = { path = "../m2-elm-counter" }

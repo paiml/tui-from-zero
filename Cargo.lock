@@ -283,6 +283,7 @@ dependencies = [
 name = "m5-ptop-mini"
 version = "0.1.0"
 dependencies = [
+ "crossterm",
  "m1-cellbuffer",
  "m1-widgets",
  "m2-elm-counter",
