@@ -9,12 +9,24 @@ use presentar_terminal::direct::DiffRenderer;
 
 fn build_frame(width: u16, height: u16, tick: u64) -> CellBuffer {
     let mut buf = CellBuffer::new(width, height);
-    write_str(&mut buf, 2, 0, "M1 · presentar CellBuffer + DiffRenderer", 4);
+    write_str(
+        &mut buf,
+        2,
+        0,
+        "M1 · presentar CellBuffer + DiffRenderer",
+        4,
+    );
     let x = (2 + ((tick) % (u64::from(width) - 4))) as u16;
     if let Some(c) = buf.get_mut(x, 2) {
         c.update("●", ansi_to_color(2), ansi_to_color(0), Modifiers::NONE);
     }
-    write_str(&mut buf, 2, height - 1, "press Ctrl-C to quit (interactive)", 8);
+    write_str(
+        &mut buf,
+        2,
+        height - 1,
+        "press Ctrl-C to quit (interactive)",
+        8,
+    );
     buf
 }
 

@@ -1,8 +1,8 @@
 //! Probar-style snapshot test for m3-panels — composed dashboard.
 
 use m1_cellbuffer::CellBuffer;
-use m3_panels::{paint_memory_bar, CpuGrid, Process, ProcessTable};
 use m1_widgets::{Rect, Widget};
+use m3_panels::{paint_memory_bar, CpuGrid, Process, ProcessTable};
 use m4_tests::snapshot;
 
 #[test]

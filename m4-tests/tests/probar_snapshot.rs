@@ -22,5 +22,8 @@ fn probar_snapshot_harness_roundtrips() {
     }
     let s = snapshot(&buf);
     assert_eq!(s, "tui*\nok!*\n");
-    assert!(diff_snapshot(&buf, &s).is_empty(), "self-diff must be empty");
+    assert!(
+        diff_snapshot(&buf, &s).is_empty(),
+        "self-diff must be empty"
+    );
 }

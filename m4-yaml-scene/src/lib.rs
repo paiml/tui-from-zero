@@ -225,10 +225,7 @@ mod tests {
     #[test]
     fn unknown_widget_returns_err() {
         let err = parse("foobar x=0").err();
-        assert_eq!(
-            err,
-            Some(SceneError::UnknownWidget("foobar".to_string()))
-        );
+        assert_eq!(err, Some(SceneError::UnknownWidget("foobar".to_string())));
     }
 
     #[test]

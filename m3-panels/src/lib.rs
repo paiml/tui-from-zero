@@ -88,12 +88,7 @@ pub fn paint_memory_bar(buf: &mut CellBuffer, rect: Rect, used: f64, total: f64)
     let filled = ((used / total).clamp(0.0, 1.0) * f64::from(inner)) as u16;
     let put = |buf: &mut CellBuffer, x: u16, y: u16, ch: &str, fg: u8| {
         if let Some(c) = buf.get_mut(x, y) {
-            c.update(
-                ch,
-                ansi_to_color(fg),
-                Color::TRANSPARENT,
-                Modifiers::NONE,
-            );
+            c.update(ch, ansi_to_color(fg), Color::TRANSPARENT, Modifiers::NONE);
         }
     };
     put(buf, rect.x, rect.y, "[", 6);
@@ -170,7 +165,9 @@ mod tests {
     use super::*;
 
     fn space_sym(buf: &CellBuffer, x: u16, y: u16) -> bool {
-        buf.get(x, y).map(|c| c.symbol.as_str() == " ").unwrap_or(true)
+        buf.get(x, y)
+            .map(|c| c.symbol.as_str() == " ")
+            .unwrap_or(true)
     }
 
     #[test]
@@ -211,10 +208,7 @@ mod tests {
     #[test]
     fn cpu_grid_zero_width_is_noop() {
         let mut buf = CellBuffer::new(10, 1);
-        CpuGrid {
-            cores: &[0.5; 4],
-        }
-        .paint(
+        CpuGrid { cores: &[0.5; 4] }.paint(
             &mut buf,
             Rect {
                 x: 0,
@@ -251,10 +245,7 @@ mod tests {
     #[test]
     fn cpu_grid_more_cores_than_columns_breaks_early() {
         let mut buf = CellBuffer::new(8, 1);
-        CpuGrid {
-            cores: &[0.5; 8],
-        }
-        .paint(
+        CpuGrid { cores: &[0.5; 8] }.paint(
             &mut buf,
             Rect {
                 x: 0,

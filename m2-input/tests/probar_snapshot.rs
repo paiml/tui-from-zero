@@ -20,7 +20,10 @@ fn dispatch_table() -> String {
         ("r", k(KeyCode::Char('r'))),
         ("q", k(KeyCode::Char('q'))),
         ("Esc", k(KeyCode::Esc)),
-        ("Ctrl+c", KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)),
+        (
+            "Ctrl+c",
+            KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL),
+        ),
         ("z", k(KeyCode::Char('z'))),
     ];
     probes

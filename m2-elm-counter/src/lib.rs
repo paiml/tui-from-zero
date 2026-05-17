@@ -194,7 +194,10 @@ mod tests {
         let row2: String = (0..40)
             .map(|x| buf.get(x, 2).expect("cell").symbol.to_string())
             .collect();
-        assert!(row2.contains("count = 42"), "row 2 missing count text: {row2:?}");
+        assert!(
+            row2.contains("count = 42"),
+            "row 2 missing count text: {row2:?}"
+        );
     }
 
     #[test]
