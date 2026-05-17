@@ -20,6 +20,8 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 [[package]]
 name = "aprender-compute"
 version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d6bff7b8f4edab24a4e49032011ad0352303995771cd958626d129197e3c5e1"
 dependencies = [
  "anyhow",
  "aprender-gemm-codegen",
@@ -38,6 +40,8 @@ dependencies = [
 [[package]]
 name = "aprender-gemm-codegen"
 version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66e1f1a8b4fb207070e46b2cf9a3738e42d7b51fe1be595a20288e14d5e5c825"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -47,6 +51,8 @@ dependencies = [
 [[package]]
 name = "aprender-present-core"
 version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28c635f1848f2d2ae598a7c64c8f250f918d69e332e72a26e703c64de377172b"
 dependencies = [
  "aprender-compute",
  "provable-contracts-macros",
@@ -58,6 +64,8 @@ dependencies = [
 [[package]]
 name = "aprender-present-terminal"
 version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "991bca797cadff599a7886653cbad42eb247f463410530970e83033561e89cdc"
 dependencies = [
  "aprender-present-core",
  "bitvec",
@@ -71,6 +79,8 @@ dependencies = [
 [[package]]
 name = "aprender-quant"
 version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1d3a2dee8e69b1573849c716d09b5d63ed19064ef07558fea21789e8c2fd064"
 dependencies = [
  "half",
 ]
