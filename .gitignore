@@ -5,3 +5,8 @@ target/
 lean/.lake/
 lean/lake-manifest.json
 
+# Tool caches — local only
+.pmat/
+.pv/
+contracts/.pv/
+

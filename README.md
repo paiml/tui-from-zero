@@ -1,5 +1,12 @@
 # tui-from-zero
 
+[![CI](https://github.com/paiml/tui-from-zero/actions/workflows/ci.yml/badge.svg)](https://github.com/paiml/tui-from-zero/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
+[![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](Cargo.toml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#install)
+[![pv contracts](https://img.shields.io/badge/pv%20contracts-3%20valid-brightgreen.svg)](contracts/)
+
 Companion repository for the **TUI from Zero** Coursera course — the next course in the
 [Rust for Data Engineering](https://www.coursera.org/specializations/rust-for-data-engineering)
 specialization, built around [`presentar`](https://github.com/paiml/aprender) — the pure-Rust
@@ -64,16 +71,18 @@ discharges the universal claim at L5; the demo binaries assert the runtime half 
 
 The capstone (M5) composes all four into a working `ptop-mini`.
 
-## Prerequisites
+## Install
+
+```bash
+make install
+```
+
+### Prerequisites
 
 - Rust 1.75+ (`rustup default stable`)
 - `aprender-contracts-cli` for `pv` (the contract validator + scorer)
 - Optional: `elan` + Lean 4 toolchain for `make lean-build`
 - Optional: `cargo-llvm-cov` for the 100% line-coverage gate
-
-```bash
-make install
-```
 
 ## Quick start
 

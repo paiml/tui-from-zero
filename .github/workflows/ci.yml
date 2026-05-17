@@ -13,6 +13,9 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  # clap parses argv on an 8 MB stack — set globally so every cargo
+  # test step honours it (CB-1303 pmat compliance).
+  RUST_MIN_STACK: "8388608"
 
 jobs:
   gate:

@@ -18,6 +18,17 @@ edition = "2021"
 rust-version = "1.75"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/paiml/tui-from-zero"
+exclude = ["target/", ".github/", "lean/.lake/", ".idea/", ".vscode/"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+todo = "warn"
+unimplemented = "warn"
 
 [profile.release]
 lto = true

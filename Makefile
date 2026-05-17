@@ -1,4 +1,5 @@
 .DELETE_ON_ERROR:
+.ONESHELL:
 .SUFFIXES:
 
 .PHONY: help install validate explain score lint audit status graph codegen \
@@ -184,7 +185,7 @@ demo:
 	@cargo run --release --bin ptop-mini
 
 test:
-	cargo test --workspace --release
+	PROPTEST_CASES=256 cargo test --workspace --release
 
 build:
 	cargo build --workspace --release

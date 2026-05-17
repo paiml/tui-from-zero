@@ -16,3 +16,6 @@ path = "src/main.rs"
 
 [dev-dependencies]
 proptest = "1"
+
+[lints]
+workspace = true

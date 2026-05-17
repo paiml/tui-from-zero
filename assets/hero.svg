@@ -1,0 +1,220 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-label="tui-from-zero hero: render, react, compose">
+<!-- GRID PROTOCOL MANIFEST
+     Canvas: 1200x600 | text_elements: 0 | role: img
+     Zone 1 (0..400):   render-cells (cell buffer + diff highlights)
+     Zone 2 (400..800): react-loop (Event -> State -> Frame, Elm architecture)
+     Zone 3 (800..1200): compose-panels (stacked widgets composing into ptop-mini)
+     Stroke-width: 4 (above 3.5 floor) | Fill-opacity: 0.30-0.45 | Palette: oxide-premium
+-->
+
+<defs>
+  <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#0d1117"/>
+    <stop offset="100%" stop-color="#1a1d23"/>
+  </linearGradient>
+  <radialGradient id="zone-blue" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#4a9eff" stop-opacity="0.20"/>
+    <stop offset="100%" stop-color="#4a9eff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="zone-purple" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#9f8fef" stop-opacity="0.20"/>
+    <stop offset="100%" stop-color="#9f8fef" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="zone-green" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#36b37e" stop-opacity="0.20"/>
+    <stop offset="100%" stop-color="#36b37e" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="accent-rust" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#4a9eff"/>
+    <stop offset="50%" stop-color="#9f8fef"/>
+    <stop offset="100%" stop-color="#36b37e"/>
+  </linearGradient>
+</defs>
+
+<!-- background -->
+<rect width="1200" height="600" fill="url(#bg-grad)"/>
+<rect x="20" y="20" width="1160" height="560" fill="none" stroke="#30363d" stroke-width="2"/>
+
+<!-- zone atmospheres -->
+<ellipse cx="200" cy="300" rx="200" ry="240" fill="url(#zone-blue)"/>
+<ellipse cx="600" cy="300" rx="200" ry="240" fill="url(#zone-purple)"/>
+<ellipse cx="1000" cy="300" rx="200" ry="240" fill="url(#zone-green)"/>
+
+<!-- top accent bar -->
+<rect x="80" y="60" width="1040" height="6" rx="3" fill="url(#accent-rust)"/>
+
+<!-- bottom accent bar -->
+<rect x="80" y="534" width="1040" height="6" rx="3" fill="url(#accent-rust)"/>
+
+<!-- zone dividers -->
+<line x1="400" y1="100" x2="400" y2="500" stroke="#30363d" stroke-width="2"/>
+<line x1="800" y1="100" x2="800" y2="500" stroke="#30363d" stroke-width="2"/>
+
+<!-- corner accent dots -->
+<circle cx="50" cy="50" r="10" fill="#4a9eff" fill-opacity="0.6"/>
+<circle cx="1150" cy="50" r="10" fill="#36b37e" fill-opacity="0.6"/>
+<circle cx="50" cy="550" r="10" fill="#9f8fef" fill-opacity="0.6"/>
+<circle cx="1150" cy="550" r="10" fill="#ffab00" fill-opacity="0.6"/>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- ZONE 1: RENDER — cell buffer + diff highlights -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<g id="zone-render">
+  <!-- 8x6 cell grid centered at x=200,y=300 -->
+  <!-- each cell: 30x30, gap 4, starting top-left at x=70, y=200 -->
+  <!-- row 0 -->
+  <rect x="70"  y="200" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="104" y="200" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="138" y="200" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="172" y="200" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="206" y="200" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="240" y="200" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="274" y="200" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="308" y="200" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <!-- row 1 -->
+  <rect x="70"  y="234" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="104" y="234" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="138" y="234" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="172" y="234" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="206" y="234" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="240" y="234" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="274" y="234" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="308" y="234" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <!-- row 2 — middle, diffed -->
+  <rect x="70"  y="268" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="104" y="268" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="138" y="268" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="172" y="268" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="206" y="268" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="240" y="268" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="274" y="268" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="308" y="268" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <!-- row 3 -->
+  <rect x="70"  y="302" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="104" y="302" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="138" y="302" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="172" y="302" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="206" y="302" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="240" y="302" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="274" y="302" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="308" y="302" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <!-- row 4 -->
+  <rect x="70"  y="336" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="104" y="336" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="138" y="336" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="172" y="336" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="206" y="336" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.55" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="240" y="336" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="274" y="336" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="308" y="336" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <!-- row 5 -->
+  <rect x="70"  y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="104" y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="138" y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="172" y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="206" y="370" width="30" height="30" rx="3" fill="#4a9eff" fill-opacity="0.35" stroke="#4a9eff" stroke-width="4"/>
+  <rect x="240" y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="274" y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+  <rect x="308" y="370" width="30" height="30" rx="3" fill="#161b22" stroke="#4a9eff" stroke-width="2"/>
+</g>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- ZONE 2: REACT — Elm cycle Event → State → Frame -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<g id="zone-react">
+  <!-- Event circle -->
+  <circle cx="500" cy="240" r="48" fill="#161b22" stroke="#9f8fef" stroke-width="5"/>
+  <circle cx="500" cy="240" r="24" fill="#9f8fef" fill-opacity="0.45"/>
+  <!-- State circle -->
+  <circle cx="700" cy="240" r="48" fill="#161b22" stroke="#9f8fef" stroke-width="5"/>
+  <rect x="680" y="220" width="40" height="40" rx="6" fill="#9f8fef" fill-opacity="0.45"/>
+  <!-- Frame circle -->
+  <circle cx="600" cy="400" r="48" fill="#161b22" stroke="#9f8fef" stroke-width="5"/>
+  <rect x="575" y="378" width="50" height="44" rx="4" fill="none" stroke="#9f8fef" stroke-width="3"/>
+  <line x1="580" y1="390" x2="620" y2="390" stroke="#9f8fef" stroke-width="2.5"/>
+  <line x1="580" y1="400" x2="615" y2="400" stroke="#9f8fef" stroke-width="2.5"/>
+  <line x1="580" y1="410" x2="610" y2="410" stroke="#9f8fef" stroke-width="2.5"/>
+  <!-- arrows: Event → State -->
+  <path d="M 548 240 L 645 240" stroke="#9f8fef" stroke-width="5" fill="none"/>
+  <polygon points="640,232 660,240 640,248" fill="#9f8fef"/>
+  <!-- State → Frame -->
+  <path d="M 678 280 L 632 358" stroke="#9f8fef" stroke-width="5" fill="none"/>
+  <polygon points="640,344 624,374 654,360" fill="#9f8fef"/>
+  <!-- Frame → Event (cycle back) -->
+  <path d="M 552 380 L 510 290" stroke="#9f8fef" stroke-width="5" fill="none" stroke-dasharray="6 6"/>
+  <polygon points="514,306 504,278 524,300" fill="#9f8fef"/>
+</g>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- ZONE 3: COMPOSE — stacked panels = ptop-mini composition -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<g id="zone-compose">
+  <!-- Window frame -->
+  <rect x="830" y="180" width="340" height="240" rx="8" fill="#161b22" stroke="#36b37e" stroke-width="5"/>
+  <!-- title bar -->
+  <rect x="830" y="180" width="340" height="22" rx="8" fill="#36b37e" fill-opacity="0.35"/>
+  <circle cx="844" cy="191" r="4" fill="#ff5630" fill-opacity="0.9"/>
+  <circle cx="858" cy="191" r="4" fill="#ffab00" fill-opacity="0.9"/>
+  <circle cx="872" cy="191" r="4" fill="#36b37e" fill-opacity="0.9"/>
+
+  <!-- CpuGrid (top-left, 4x2 cores) -->
+  <rect x="844" y="216" width="148" height="68" rx="4" fill="#0d1117" stroke="#36b37e" stroke-width="2.5"/>
+  <rect x="850" y="222" width="32" height="26" rx="2" fill="#36b37e" fill-opacity="0.45"/>
+  <rect x="886" y="222" width="32" height="26" rx="2" fill="#36b37e" fill-opacity="0.30"/>
+  <rect x="922" y="222" width="32" height="26" rx="2" fill="#36b37e" fill-opacity="0.45"/>
+  <rect x="958" y="222" width="30" height="26" rx="2" fill="#36b37e" fill-opacity="0.25"/>
+  <rect x="850" y="252" width="32" height="26" rx="2" fill="#36b37e" fill-opacity="0.35"/>
+  <rect x="886" y="252" width="32" height="26" rx="2" fill="#36b37e" fill-opacity="0.45"/>
+  <rect x="922" y="252" width="32" height="26" rx="2" fill="#36b37e" fill-opacity="0.25"/>
+  <rect x="958" y="252" width="30" height="26" rx="2" fill="#36b37e" fill-opacity="0.45"/>
+
+  <!-- Sparkline (top-right) -->
+  <rect x="1000" y="216" width="156" height="68" rx="4" fill="#0d1117" stroke="#36b37e" stroke-width="2.5"/>
+  <polyline points="1006,272 1020,256 1034,264 1048,242 1062,250 1076,232 1090,238 1104,228 1118,236 1132,224 1146,228 1156,226"
+            fill="none" stroke="#7ee787" stroke-width="3.5"/>
+  <polyline points="1006,278 1020,266 1034,272 1048,256 1062,262 1076,250 1090,254 1104,246 1118,252 1132,244 1146,246 1156,246"
+            fill="none" stroke="#36b37e" stroke-width="3.5" stroke-opacity="0.5"/>
+
+  <!-- ProcessTable (bottom, 5 rows) -->
+  <rect x="844" y="296" width="312" height="118" rx="4" fill="#0d1117" stroke="#36b37e" stroke-width="2.5"/>
+  <rect x="850" y="302" width="300" height="3" fill="#36b37e" fill-opacity="0.7"/>
+  <!-- 5 process rows -->
+  <rect x="850" y="312" width="180" height="3.5" fill="#7ee787" fill-opacity="0.6"/>
+  <rect x="1036" y="312" width="40" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+  <rect x="1082" y="312" width="60" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+
+  <rect x="850" y="328" width="220" height="3.5" fill="#7ee787" fill-opacity="0.6"/>
+  <rect x="1078" y="328" width="32" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+  <rect x="1116" y="328" width="36" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+
+  <rect x="850" y="344" width="160" height="3.5" fill="#7ee787" fill-opacity="0.6"/>
+  <rect x="1016" y="344" width="50" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+  <rect x="1072" y="344" width="46" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+
+  <rect x="850" y="360" width="200" height="3.5" fill="#7ee787" fill-opacity="0.6"/>
+  <rect x="1056" y="360" width="36" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+  <rect x="1100" y="360" width="50" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+
+  <rect x="850" y="376" width="240" height="3.5" fill="#7ee787" fill-opacity="0.6"/>
+  <rect x="1096" y="376" width="28" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+  <rect x="1130" y="376" width="22" height="3.5" fill="#36b37e" fill-opacity="0.55"/>
+
+  <!-- Memory gauge (very bottom) -->
+  <rect x="850" y="394" width="300" height="10" rx="3" fill="#0d1117" stroke="#36b37e" stroke-width="2"/>
+  <rect x="852" y="396" width="180" height="6" rx="2" fill="#36b37e" fill-opacity="0.7"/>
+</g>
+
+<!-- Tri-symbol seal at center bottom: the three pillars -->
+<g id="seal">
+  <circle cx="200" cy="500" r="22" fill="#0d1117" stroke="#4a9eff" stroke-width="4.5"/>
+  <circle cx="600" cy="500" r="22" fill="#0d1117" stroke="#9f8fef" stroke-width="4.5"/>
+  <circle cx="1000" cy="500" r="22" fill="#0d1117" stroke="#36b37e" stroke-width="4.5"/>
+  <line x1="222" y1="500" x2="578" y2="500" stroke="url(#accent-rust)" stroke-width="3"/>
+  <line x1="622" y1="500" x2="978" y2="500" stroke="url(#accent-rust)" stroke-width="3"/>
+  <!-- inner glyphs: square / circle / triangle (render / react / compose) -->
+  <rect x="190" y="490" width="20" height="20" fill="#4a9eff" fill-opacity="0.55"/>
+  <circle cx="600" cy="500" r="10" fill="#9f8fef" fill-opacity="0.55"/>
+  <polygon points="1000,490 1011,510 989,510" fill="#36b37e" fill-opacity="0.55"/>
+</g>
+
+</svg>
