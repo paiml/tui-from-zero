@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+    "m1-cellbuffer",
+    "m1-widgets",
+    "m2-elm-counter",
+    "m2-input",
+    "m3-sparkline",
+    "m3-panels",
+    "m4-yaml-scene",
+    "m4-tests",
+    "m5-ptop-mini",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/paiml/tui-from-zero"
+
+[profile.release]
+lto = true
+codegen-units = 1

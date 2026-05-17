@@ -1,0 +1,18 @@
+[package]
+name = "m4-yaml-scene"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = ".prs YAML-driven scene compiled to a Widget tree"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "scene-demo"
+path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"

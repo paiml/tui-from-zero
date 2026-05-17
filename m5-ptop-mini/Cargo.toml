@@ -1,0 +1,18 @@
+[package]
+name = "m5-ptop-mini"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "The capstone: 200-LOC ptop clone composing all three pillars"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "ptop-mini"
+path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"

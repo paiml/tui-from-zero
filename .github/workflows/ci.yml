@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: tui-from-zero
+          cache-all-crates: true
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Build workspace
+        run: cargo build --workspace --locked
+
+      - name: Test workspace
+        run: cargo test --workspace --locked
+
+      # 100% line coverage gate. main.rs and src/bin/ shells are
+      # excluded — they're thin pattern-matches that delegate to lib
+      # functions, so coverage measures real logic only.
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: 100% line-coverage gate
+        run: |
+          cargo llvm-cov --workspace --locked \
+            --ignore-filename-regex 'main\.rs|src/bin/' \
+            --fail-under-lines 100
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Install pv (aprender-contracts-cli)
+        run: cargo install --locked aprender-contracts-cli
+
+      - name: Validate rendering contract via pv
+        run: pv validate contracts/tui-rendering-v1.yaml
+
+      - name: Validate lifecycle contract via pv
+        run: pv validate contracts/tui-lifecycle-v1.yaml
+
+      - name: Validate panels contract via pv
+        run: pv validate contracts/tui-panels-v1.yaml
+
+      # Runtime contract proofs — each demo binary must exit zero
+      # with its contract marker on stderr.
+      - name: Prove M1 contracts at runtime
+        run: |
+          for bin in cellbuffer-demo widgets-demo; do
+            out=$(cargo run --locked -q --bin "$bin" 2>&1)
+            echo "$out"
+            echo "$out" | grep -q "tui-rendering-v1 holds — OK"
+          done
+
+      - name: Prove M2 contracts at runtime
+        run: |
+          for bin in counter-demo input-demo; do
+            out=$(cargo run --locked -q --bin "$bin" 2>&1)
+            echo "$out"
+            echo "$out" | grep -q "tui-lifecycle-v1 holds — OK"
+          done
+
+      - name: Prove M3+M4+M5 panel contracts at runtime
+        run: |
+          for bin in sparkline-demo panels-demo scene-demo ptop-mini; do
+            out=$(cargo run --locked -q --bin "$bin" 2>&1)
+            echo "$out"
+            echo "$out" | grep -q "tui-panels-v1 holds — OK"
+          done
+
+      - name: Prove M4-tests rendering contract at runtime
+        run: |
+          out=$(cargo run --locked -q --bin tests-demo 2>&1)
+          echo "$out"
+          echo "$out" | grep -q "tui-rendering-v1 holds — OK"
+
+      # PMAT compliance check — advisory.
+      - name: Install pmat
+        run: cargo install --locked pmat
+
+      - name: pmat comply (advisory)
+        continue-on-error: true
+        run: pmat comply check

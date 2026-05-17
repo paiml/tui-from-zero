@@ -1,0 +1,18 @@
+[package]
+name = "m1-widgets"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Widget trait + Container/Row/Column (composite pattern)"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "widgets-demo"
+path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"

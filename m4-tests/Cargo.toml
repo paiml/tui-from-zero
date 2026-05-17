@@ -1,0 +1,18 @@
+[package]
+name = "m4-tests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Pure-Rust TUI tests: golden cell-buffer snapshots"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "tests-demo"
+path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"

@@ -1,0 +1,18 @@
+[package]
+name = "m1-cellbuffer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "CellBuffer + DiffRenderer (no panics, no overdraw)"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "cellbuffer-demo"
+path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"

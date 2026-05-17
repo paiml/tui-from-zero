@@ -1,0 +1,18 @@
+[package]
+name = "m2-elm-counter"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Elm-style counter: Event -> State -> Frame"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "counter-demo"
+path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"

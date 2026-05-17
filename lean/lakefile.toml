@@ -1,0 +1,6 @@
+name = "tuiFromZero"
+defaultTargets = ["TuiFromZero"]
+
+[[lean_lib]]
+name = "TuiFromZero"
+srcDir = "."
