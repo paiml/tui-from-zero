@@ -1,13 +1,10 @@
-//! ProcessTable + CpuGrid — the two panels at the heart of ptop.
-//!
-//! Provable contract: `contracts/tui-panels-v1.yaml`. Every painted
-//! cell stays inside the panel's Rect — no overflow.
+//! ProcessTable + CpuGrid + memory bar — composed over presentar's CellBuffer.
 
-use m1_cellbuffer::{Cell, CellBuffer};
+use m1_cellbuffer::{ansi_to_color, CellBuffer, Modifiers};
 use m1_widgets::{Label, Rect, Widget};
 use m3_sparkline::paint_sparkline;
+use presentar_core::Color;
 
-/// One process row: name + cpu% + mem%.
 #[derive(Debug, Clone)]
 pub struct Process {
     pub name: String,
@@ -15,52 +12,45 @@ pub struct Process {
     pub mem: f64,
 }
 
-/// A CPU grid panel — one cell per core, fill represents load.
 pub struct CpuGrid<'a> {
-    pub cores: &'a [f64], // load per core, 0.0..1.0
+    pub cores: &'a [f64],
 }
 
 impl<'a> Widget for CpuGrid<'a> {
     fn paint(&self, buf: &mut CellBuffer, rect: Rect) {
-        // simple horizontal strip — one cell per core
-        let cores = self.cores.len();
+        let cores = self.cores.len() as u16;
         if cores == 0 || rect.w == 0 {
             return;
         }
         let cell_w = (rect.w / cores).max(1);
+        let bg = Color::TRANSPARENT;
         for (i, &load) in self.cores.iter().enumerate() {
-            let cx = rect.x + i * cell_w;
+            let cx = rect.x + (i as u16) * cell_w;
             if cx >= rect.x + rect.w {
                 break;
             }
-            let fg = if load > 0.8 {
-                1 // red
+            let fg = ansi_to_color(if load > 0.8 {
+                1
             } else if load > 0.5 {
-                3 // yellow
+                3
             } else {
-                2 // green
-            };
-            // Invariant: cx + cell_w <= rect.x + rect.w (because
-            // cell_w = floor(rect.w / cores) and cx = i * cell_w with
-            // i < cores). The outer `cx >= rect.x + rect.w` break catches
-            // the case where cell_w = 1 < cores, so this loop never
-            // overflows the parent rect — that's the panels contract.
-            debug_assert!(cx + cell_w <= rect.x + rect.w);
+                2
+            });
             for dx in 0..cell_w {
-                buf.set(cx + dx, rect.y, Cell::new('█', fg));
+                if let Some(c) = buf.get_mut(cx + dx, rect.y) {
+                    c.update("█", fg, bg, Modifiers::NONE);
+                }
             }
         }
     }
 }
 
-/// Process table panel — one row per process, header in row 0.
 pub struct ProcessTable<'a> {
     pub processes: &'a [Process],
 }
 
 impl<'a> Widget for ProcessTable<'a> {
     fn paint(&self, buf: &mut CellBuffer, rect: Rect) {
-        // header
         Label {
             text: "NAME              CPU%   MEM%".into(),
             fg: 6,
@@ -74,15 +64,14 @@ impl<'a> Widget for ProcessTable<'a> {
                 h: 1,
             },
         );
-        // rows — clipped to rect.h - 1
-        let rows = (rect.h.saturating_sub(1)).min(self.processes.len());
+        let rows = (rect.h.saturating_sub(1) as usize).min(self.processes.len());
         for (i, proc) in self.processes.iter().take(rows).enumerate() {
             let row = format!("{:<16}  {:>4.1}   {:>4.1}", proc.name, proc.cpu, proc.mem);
             Label { text: row, fg: 7 }.paint(
                 buf,
                 Rect {
                     x: rect.x,
-                    y: rect.y + 1 + i,
+                    y: rect.y + 1 + (i as u16),
                     w: rect.w,
                     h: 1,
                 },
@@ -91,23 +80,30 @@ impl<'a> Widget for ProcessTable<'a> {
     }
 }
 
-/// Memory bar — a horizontal gauge `[#######      ]` showing used/total.
 pub fn paint_memory_bar(buf: &mut CellBuffer, rect: Rect, used: f64, total: f64) {
     if rect.w < 2 || total <= 0.0 {
         return;
     }
     let inner = rect.w - 2;
-    let filled = ((used / total).clamp(0.0, 1.0) * inner as f64) as usize;
-    buf.set(rect.x, rect.y, Cell::new('[', 6));
-    buf.set(rect.x + rect.w - 1, rect.y, Cell::new(']', 6));
+    let filled = ((used / total).clamp(0.0, 1.0) * f64::from(inner)) as u16;
+    let put = |buf: &mut CellBuffer, x: u16, y: u16, ch: &str, fg: u8| {
+        if let Some(c) = buf.get_mut(x, y) {
+            c.update(
+                ch,
+                ansi_to_color(fg),
+                Color::TRANSPARENT,
+                Modifiers::NONE,
+            );
+        }
+    };
+    put(buf, rect.x, rect.y, "[", 6);
+    put(buf, rect.x + rect.w - 1, rect.y, "]", 6);
     for i in 0..inner {
-        let ch = if i < filled { '█' } else { ' ' };
-        let fg = if i < filled { 2 } else { 8 };
-        buf.set(rect.x + 1 + i, rect.y, Cell::new(ch, fg));
+        let (ch, fg) = if i < filled { ("█", 2) } else { (" ", 7) };
+        put(buf, rect.x + 1 + i, rect.y, ch, fg);
     }
 }
 
-/// Compose a 60×10 "ptop-mini-frame": title + cpu grid + memory + processes.
 #[must_use]
 pub fn render_dashboard(
     cores: &[f64],
@@ -169,8 +165,13 @@ pub fn contract_marker() -> &'static str {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
+
+    fn space_sym(buf: &CellBuffer, x: u16, y: u16) -> bool {
+        buf.get(x, y).map(|c| c.symbol.as_str() == " ").unwrap_or(true)
+    }
 
     #[test]
     fn cpu_grid_never_overflows_rect() {
@@ -185,9 +186,88 @@ mod tests {
                 h: 1,
             },
         );
-        // Cells past x=16 must be default (untouched).
         for x in 16..20 {
-            assert_eq!(buf.get(x, 0).ch, ' ', "overflow at x={x}");
+            assert!(space_sym(&buf, x, 0), "overflow at x={x}");
+        }
+    }
+
+    #[test]
+    fn cpu_grid_empty_cores_is_noop() {
+        let mut buf = CellBuffer::new(10, 1);
+        CpuGrid { cores: &[] }.paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 10,
+                h: 1,
+            },
+        );
+        for x in 0..10 {
+            assert!(space_sym(&buf, x, 0));
+        }
+    }
+
+    #[test]
+    fn cpu_grid_zero_width_is_noop() {
+        let mut buf = CellBuffer::new(10, 1);
+        CpuGrid {
+            cores: &[0.5; 4],
+        }
+        .paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 1,
+            },
+        );
+        for x in 0..10 {
+            assert!(space_sym(&buf, x, 0));
+        }
+    }
+
+    #[test]
+    fn cpu_grid_red_yellow_green_color_bands() {
+        let mut buf = CellBuffer::new(12, 1);
+        CpuGrid {
+            cores: &[0.1, 0.6, 0.9],
+        }
+        .paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 12,
+                h: 1,
+            },
+        );
+        assert_eq!(buf.get(0, 0).expect("cell").fg, ansi_to_color(2));
+        assert_eq!(buf.get(4, 0).expect("cell").fg, ansi_to_color(3));
+        assert_eq!(buf.get(8, 0).expect("cell").fg, ansi_to_color(1));
+    }
+
+    #[test]
+    fn cpu_grid_more_cores_than_columns_breaks_early() {
+        let mut buf = CellBuffer::new(8, 1);
+        CpuGrid {
+            cores: &[0.5; 8],
+        }
+        .paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 4,
+                h: 1,
+            },
+        );
+        for x in 0..4 {
+            assert_eq!(buf.get(x, 0).expect("cell").symbol.as_str(), "█");
+        }
+        for x in 4..8 {
+            assert!(space_sym(&buf, x, 0));
         }
     }
 
@@ -214,9 +294,6 @@ mod tests {
                 h: 3,
             },
         );
-        // Only header + 2 process rows fit (h=3).
-        // Beyond y=2 must be untouched.
-        // (Implicitly true — buf is only 3 rows tall.)
         assert_eq!(buf.height(), 3);
     }
 
@@ -234,91 +311,8 @@ mod tests {
             999.0,
             100.0,
         );
-        assert_eq!(buf.get(1, 0).ch, '█'); // first interior filled
-        assert_eq!(buf.get(8, 0).ch, '█'); // last interior filled
-    }
-
-    #[test]
-    fn cpu_grid_empty_cores_is_noop() {
-        let mut buf = CellBuffer::new(10, 1);
-        CpuGrid { cores: &[] }.paint(
-            &mut buf,
-            Rect {
-                x: 0,
-                y: 0,
-                w: 10,
-                h: 1,
-            },
-        );
-        for x in 0..10 {
-            assert_eq!(buf.get(x, 0).ch, ' ');
-        }
-    }
-
-    #[test]
-    fn cpu_grid_zero_width_is_noop() {
-        let mut buf = CellBuffer::new(10, 1);
-        CpuGrid {
-            cores: &[0.5; 4],
-        }
-        .paint(
-            &mut buf,
-            Rect {
-                x: 0,
-                y: 0,
-                w: 0,
-                h: 1,
-            },
-        );
-        for x in 0..10 {
-            assert_eq!(buf.get(x, 0).ch, ' ');
-        }
-    }
-
-    #[test]
-    fn cpu_grid_red_yellow_green_color_bands() {
-        // Hit each fg branch (>0.8 red=1, >0.5 yellow=3, else green=2).
-        let mut buf = CellBuffer::new(12, 1);
-        CpuGrid {
-            cores: &[0.1, 0.6, 0.9],
-        }
-        .paint(
-            &mut buf,
-            Rect {
-                x: 0,
-                y: 0,
-                w: 12,
-                h: 1,
-            },
-        );
-        assert_eq!(buf.get(0, 0).fg, 2); // green
-        assert_eq!(buf.get(4, 0).fg, 3); // yellow
-        assert_eq!(buf.get(8, 0).fg, 1); // red
-    }
-
-    #[test]
-    fn cpu_grid_more_cores_than_columns_breaks_early() {
-        // Force cell_w = 1 with 8 cores and a 4-col rect: cores past index 3
-        // exit via the `cx >= rect.x + rect.w` break.
-        let mut buf = CellBuffer::new(8, 1);
-        CpuGrid {
-            cores: &[0.5; 8],
-        }
-        .paint(
-            &mut buf,
-            Rect {
-                x: 0,
-                y: 0,
-                w: 4,
-                h: 1,
-            },
-        );
-        for x in 0..4 {
-            assert_eq!(buf.get(x, 0).ch, '█');
-        }
-        for x in 4..8 {
-            assert_eq!(buf.get(x, 0).ch, ' ');
-        }
+        assert_eq!(buf.get(1, 0).expect("cell").symbol.as_str(), "█");
+        assert_eq!(buf.get(8, 0).expect("cell").symbol.as_str(), "█");
     }
 
     #[test]
@@ -335,7 +329,7 @@ mod tests {
             5.0,
             10.0,
         );
-        assert_eq!(buf.get(0, 0).ch, ' ');
+        assert!(space_sym(&buf, 0, 0));
     }
 
     #[test]

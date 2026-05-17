@@ -4,7 +4,7 @@
 //! determinism contract by running the replay twice and asserting
 //! equality. `--interactive` enters a live keypress loop.
 
-use m1_cellbuffer::{full, render_ansi};
+use m1_cellbuffer::render_to_ansi;
 use m2_elm_counter::{contract_marker, init, update, view, Msg};
 
 fn replay(msgs: &[Msg]) -> m2_elm_counter::State {
@@ -29,7 +29,7 @@ fn main() {
     assert_eq!(state.count, 2, "replay landed on unexpected count");
 
     let frame = view(state);
-    println!("{}", render_ansi(&full(&frame)));
+    println!("{}", render_to_ansi(&frame));
     println!(
         "\n[replay] {} messages -> count = {}",
         msgs.len(),

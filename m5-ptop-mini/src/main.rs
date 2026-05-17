@@ -15,7 +15,7 @@ use crossterm::{
     event::{self, Event, KeyCode, KeyEvent, KeyModifiers},
     execute, terminal,
 };
-use m1_cellbuffer::{diff, full, render_ansi};
+use m1_cellbuffer::render_to_ansi;
 use m2_elm_counter::{init, update, Msg};
 use m2_input::dispatch;
 use m4_tests::{diff_snapshot, snapshot};
@@ -34,7 +34,7 @@ fn ci_mode() -> bool {
 fn ci_smoke(snap: &Snapshot) {
     let buf = view(snap);
     println!("M5 · ptop-mini — render, react, compose, all together\n");
-    println!("{}", render_ansi(&full(&buf)));
+    println!("{}", render_to_ansi(&buf));
     println!();
     let buf2 = view(snap);
     let golden = snapshot(&buf);
@@ -79,7 +79,6 @@ fn tick(snap: &mut Snapshot, t: u64) {
 
 fn live_mode() -> io::Result<()> {
     let mut snap = Snapshot::fixture();
-    let mut prev = view(&snap);
     let mut state = init();
 
     let mut stdout = io::stdout().lock();
@@ -88,7 +87,7 @@ fn live_mode() -> io::Result<()> {
 
     // Initial full draw.
     execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
-    write!(stdout, "{}", render_ansi(&full(&prev)))?;
+    write!(stdout, "{}", render_to_ansi(&view(&snap)))?;
     stdout.flush()?;
 
     let start = Instant::now();
@@ -97,7 +96,6 @@ fn live_mode() -> io::Result<()> {
     let mut quit = false;
 
     while !quit {
-        // Poll for key events with a short timeout so we keep redrawing.
         if event::poll(Duration::from_millis(50))? {
             if let Event::Key(KeyEvent {
                 code, modifiers, ..
@@ -110,7 +108,6 @@ fn live_mode() -> io::Result<()> {
                         quit = true;
                     }
                 }
-                // Ctrl-D also quits (terminal close).
                 if code == KeyCode::Char('d') && modifiers.contains(KeyModifiers::CONTROL) {
                     quit = true;
                 }
@@ -121,9 +118,10 @@ fn live_mode() -> io::Result<()> {
             tick_count += 1;
             tick(&mut snap, tick_count);
             let next = view(&snap);
-            let ops = diff(&prev, &next);
-            write!(stdout, "{}", render_ansi(&ops))?;
-            // Status line below the dashboard (row 11).
+            // Full repaint each tick — for true diff-based emit, see
+            // presentar_terminal::direct::DiffRenderer (the production path).
+            execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
+            write!(stdout, "{}", render_to_ansi(&next))?;
             write!(
                 stdout,
                 "\x1b[11;1H\x1b[38;5;7m  q/Esc to quit · uptime {:>4}s · ticks {} · counter={}\x1b[0m\x1b[K",
@@ -132,7 +130,6 @@ fn live_mode() -> io::Result<()> {
                 state.count,
             )?;
             stdout.flush()?;
-            prev = next;
             last_draw = Instant::now();
         }
     }

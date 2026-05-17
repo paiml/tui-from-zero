@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "CellBuffer + DiffRenderer (no panics, no overdraw)"
+description = "CellBuffer + DiffRenderer — thin pedagogical wrapper over aprender-present-terminal"
 
 [lib]
 path = "src/lib.rs"
@@ -16,6 +16,8 @@ path = "src/main.rs"
 
 [dependencies]
 crossterm = "0.28"
+presentar-terminal = { package = "aprender-present-terminal", path = "../../aprender/crates/aprender-present-terminal" }
+presentar-core = { package = "aprender-present-core", path = "../../aprender/crates/aprender-present-core" }
 
 [dev-dependencies]
 proptest = "1"

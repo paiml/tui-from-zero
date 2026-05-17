@@ -1,42 +1,49 @@
-//! Widget trait + Container/Row/Column — the composite pattern.
+//! M1.2 — Widget trait + Container/Row/Column.
 //!
-//! Provable contract: `contracts/tui-rendering-v1.yaml`. Every widget
-//! paints inside its `Rect`; Container composes children laid out
-//! horizontally (`Row`) or vertically (`Column`) — no child overflows
-//! the parent rect (`tui-panels-v1` is the L5 universal claim).
+//! Built on top of `m1-cellbuffer` (which re-exports
+//! `presentar_terminal::CellBuffer`). The `Widget` trait here is a
+//! pedagogical mini-version of `presentar_core::Widget` — same shape
+//! (paint into a buffer at a Rect), just stripped of the Brick layer
+//! so the lesson stays focused.
 
-use m1_cellbuffer::{Cell, CellBuffer};
+use m1_cellbuffer::{ansi_to_color, write_str, CellBuffer, Modifiers};
+use presentar_core::Color;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Rect {
-    pub x: usize,
-    pub y: usize,
-    pub w: usize,
-    pub h: usize,
+    pub x: u16,
+    pub y: u16,
+    pub w: u16,
+    pub h: u16,
 }
 
-/// The composite-pattern trait every widget implements.
+/// Composite-pattern trait shared by every widget.
 pub trait Widget {
-    /// Paint the widget into `buf` clipped to `rect`.
     fn paint(&self, buf: &mut CellBuffer, rect: Rect);
 }
 
-/// Solid-fill block — paints a single cell repeated across `rect`.
+/// Solid-fill block.
 pub struct Block {
-    pub cell: Cell,
+    pub ch: char,
+    pub fg: u8,
 }
 
 impl Widget for Block {
     fn paint(&self, buf: &mut CellBuffer, rect: Rect) {
-        for y in rect.y..rect.y + rect.h {
-            for x in rect.x..rect.x + rect.w {
-                buf.set(x, y, self.cell);
+        let mut byte_buf = [0u8; 4];
+        let sym = self.ch.encode_utf8(&mut byte_buf);
+        let fg = ansi_to_color(self.fg);
+        for y in rect.y..rect.y.saturating_add(rect.h) {
+            for x in rect.x..rect.x.saturating_add(rect.w) {
+                if let Some(c) = buf.get_mut(x, y) {
+                    c.update(sym, fg, Color::TRANSPARENT, Modifiers::NONE);
+                }
             }
         }
     }
 }
 
-/// One line of text painted at the top-left of its `rect`.
+/// One-line text.
 pub struct Label {
     pub text: String,
     pub fg: u8,
@@ -44,8 +51,8 @@ pub struct Label {
 
 impl Widget for Label {
     fn paint(&self, buf: &mut CellBuffer, rect: Rect) {
-        let truncated: String = self.text.chars().take(rect.w).collect();
-        buf.write_str(rect.x, rect.y, &truncated, self.fg);
+        let truncated: String = self.text.chars().take(rect.w as usize).collect();
+        write_str(buf, rect.x, rect.y, &truncated, self.fg);
     }
 }
 
@@ -54,7 +61,7 @@ pub enum Direction {
     Column,
 }
 
-/// Composite widget — lays children out evenly along `direction`.
+/// Composite — lays children evenly along `direction`.
 pub struct Container {
     pub direction: Direction,
     pub children: Vec<Box<dyn Widget>>,
@@ -62,7 +69,7 @@ pub struct Container {
 
 impl Widget for Container {
     fn paint(&self, buf: &mut CellBuffer, rect: Rect) {
-        let n = self.children.len();
+        let n = self.children.len() as u16;
         if n == 0 {
             return;
         }
@@ -73,7 +80,7 @@ impl Widget for Container {
                     child.paint(
                         buf,
                         Rect {
-                            x: rect.x + i * each_w,
+                            x: rect.x + (i as u16) * each_w,
                             y: rect.y,
                             w: each_w,
                             h: rect.h,
@@ -88,7 +95,7 @@ impl Widget for Container {
                         buf,
                         Rect {
                             x: rect.x,
-                            y: rect.y + i * each_h,
+                            y: rect.y + (i as u16) * each_h,
                             w: rect.w,
                             h: each_h,
                         },
@@ -105,6 +112,7 @@ pub fn contract_marker() -> &'static str {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -124,8 +132,8 @@ mod tests {
                 h: 1,
             },
         );
-        assert_eq!(buf.get(2, 0).ch, 'h');
-        assert_eq!(buf.get(6, 0).ch, 'o');
+        assert_eq!(buf.get(2, 0).expect("cell").symbol.as_str(), "h");
+        assert_eq!(buf.get(6, 0).expect("cell").symbol.as_str(), "o");
     }
 
     #[test]
@@ -133,12 +141,8 @@ mod tests {
         let row = Container {
             direction: Direction::Row,
             children: vec![
-                Box::new(Block {
-                    cell: Cell::new('A', 1),
-                }),
-                Box::new(Block {
-                    cell: Cell::new('B', 2),
-                }),
+                Box::new(Block { ch: 'A', fg: 1 }),
+                Box::new(Block { ch: 'B', fg: 2 }),
             ],
         };
         let mut buf = CellBuffer::new(10, 1);
@@ -151,10 +155,9 @@ mod tests {
                 h: 1,
             },
         );
-        // Last cell column must NOT overflow buffer width.
-        assert_eq!(buf.get(0, 0).ch, 'A');
-        assert_eq!(buf.get(5, 0).ch, 'B');
-        assert_eq!(buf.get(9, 0).ch, 'B');
+        assert_eq!(buf.get(0, 0).expect("cell").symbol.as_str(), "A");
+        assert_eq!(buf.get(5, 0).expect("cell").symbol.as_str(), "B");
+        assert_eq!(buf.get(9, 0).expect("cell").symbol.as_str(), "B");
     }
 
     #[test]
@@ -162,12 +165,8 @@ mod tests {
         let col = Container {
             direction: Direction::Column,
             children: vec![
-                Box::new(Block {
-                    cell: Cell::new('A', 1),
-                }),
-                Box::new(Block {
-                    cell: Cell::new('B', 2),
-                }),
+                Box::new(Block { ch: 'A', fg: 1 }),
+                Box::new(Block { ch: 'B', fg: 2 }),
             ],
         };
         let mut buf = CellBuffer::new(1, 6);
@@ -180,13 +179,13 @@ mod tests {
                 h: 6,
             },
         );
-        assert_eq!(buf.get(0, 0).ch, 'A');
-        assert_eq!(buf.get(0, 3).ch, 'B');
+        assert_eq!(buf.get(0, 0).expect("cell").symbol.as_str(), "A");
+        assert_eq!(buf.get(0, 3).expect("cell").symbol.as_str(), "B");
     }
 
     #[test]
     fn empty_container_is_noop() {
-        let row: Container = Container {
+        let row = Container {
             direction: Direction::Row,
             children: vec![],
         };
@@ -201,7 +200,7 @@ mod tests {
             },
         );
         for x in 0..4 {
-            assert_eq!(buf.get(x, 0), Cell::default());
+            assert_eq!(buf.get(x, 0).expect("cell").symbol.as_str(), " ");
         }
     }
 

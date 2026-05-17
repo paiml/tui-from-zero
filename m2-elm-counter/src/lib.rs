@@ -11,8 +11,9 @@
 //! the same final state and frame sequence. The runtime proof is the
 //! property test below.
 
-use m1_cellbuffer::{Cell, CellBuffer};
+use m1_cellbuffer::{ansi_to_color, CellBuffer, Modifiers};
 use m1_widgets::{Label, Rect, Widget};
+use presentar_core::Color;
 
 /// Counter state — a single i32.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -54,19 +55,25 @@ pub fn update(state: State, msg: Msg) -> State {
 #[must_use]
 pub fn view(state: State) -> CellBuffer {
     let mut buf = CellBuffer::new(40, 7);
-    // top border
+    let fg = ansi_to_color(6);
+    let bg = Color::TRANSPARENT;
+    let put = |buf: &mut CellBuffer, x: u16, y: u16, ch: &str| {
+        if let Some(c) = buf.get_mut(x, y) {
+            c.update(ch, fg, bg, Modifiers::NONE);
+        }
+    };
     for x in 0..40 {
-        buf.set(x, 0, Cell::new('─', 6));
-        buf.set(x, 6, Cell::new('─', 6));
+        put(&mut buf, x, 0, "─");
+        put(&mut buf, x, 6, "─");
     }
     for y in 0..7 {
-        buf.set(0, y, Cell::new('│', 6));
-        buf.set(39, y, Cell::new('│', 6));
+        put(&mut buf, 0, y, "│");
+        put(&mut buf, 39, y, "│");
     }
-    buf.set(0, 0, Cell::new('┌', 6));
-    buf.set(39, 0, Cell::new('┐', 6));
-    buf.set(0, 6, Cell::new('└', 6));
-    buf.set(39, 6, Cell::new('┘', 6));
+    put(&mut buf, 0, 0, "┌");
+    put(&mut buf, 39, 0, "┐");
+    put(&mut buf, 0, 6, "└");
+    put(&mut buf, 39, 6, "┘");
     // title
     Label {
         text: " M2 · Elm Counter ".into(),
@@ -119,6 +126,7 @@ pub fn contract_marker() -> &'static str {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
     use proptest::prelude::*;
@@ -177,23 +185,24 @@ mod tests {
     #[test]
     fn view_renders_full_frame() {
         let buf = view(State { count: 42 });
-        // 40x7 = 280 cells
         assert_eq!(buf.width(), 40);
         assert_eq!(buf.height(), 7);
-        // corners painted
-        assert_eq!(buf.get(0, 0).ch, '┌');
-        assert_eq!(buf.get(39, 0).ch, '┐');
-        assert_eq!(buf.get(0, 6).ch, '└');
-        assert_eq!(buf.get(39, 6).ch, '┘');
-        // count text appears (somewhere on row 2)
-        let row2: String = (0..40).map(|x| buf.get(x, 2).ch).collect();
+        assert_eq!(buf.get(0, 0).expect("cell").symbol.as_str(), "┌");
+        assert_eq!(buf.get(39, 0).expect("cell").symbol.as_str(), "┐");
+        assert_eq!(buf.get(0, 6).expect("cell").symbol.as_str(), "└");
+        assert_eq!(buf.get(39, 6).expect("cell").symbol.as_str(), "┘");
+        let row2: String = (0..40)
+            .map(|x| buf.get(x, 2).expect("cell").symbol.to_string())
+            .collect();
         assert!(row2.contains("count = 42"), "row 2 missing count text: {row2:?}");
     }
 
     #[test]
     fn view_handles_negative_count() {
         let buf = view(State { count: -1 });
-        let row2: String = (0..40).map(|x| buf.get(x, 2).ch).collect();
+        let row2: String = (0..40)
+            .map(|x| buf.get(x, 2).expect("cell").symbol.to_string())
+            .collect();
         assert!(row2.contains("-1"));
     }
 

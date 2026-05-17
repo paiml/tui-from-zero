@@ -2,7 +2,7 @@
 //! M4.1 demo: load a .prs source, compile to a Widget tree, paint into
 //! a CellBuffer, print the result.
 
-use m1_cellbuffer::{full, render_ansi};
+use m1_cellbuffer::render_to_ansi;
 use m4_yaml_scene::{compile, contract_marker};
 
 const SCENE: &str = r#"
@@ -19,7 +19,7 @@ fn main() {
     println!("source (.prs):");
     println!("{SCENE}");
     println!("compiled output:");
-    println!("{}", render_ansi(&full(&buf)));
+    println!("{}", render_to_ansi(&buf));
     println!("\nDeclarative widgets parsed + painted — panels contract holds.");
     eprintln!("{}", contract_marker());
 }

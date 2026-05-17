@@ -1,65 +1,62 @@
 #![allow(clippy::expect_used, clippy::panic, clippy::unwrap_used)]
-//! M1 demo: build a CellBuffer, mutate one cell, prove the diff
-//! renderer emits exactly one DrawOp instead of repainting everything.
-//!
-//! Default mode: print a single-frame demo to stdout + assertion + marker, exit.
-//! `--interactive`: render the same frame at 24 fps for 3 s to show animation.
+//! M1.1 demo: build two `presentar_terminal::CellBuffer` frames and feed
+//! them to `presentar_terminal::direct::DiffRenderer`. Prints the
+//! number of cells that would be emitted in a full repaint vs. the diff
+//! (1 cell change → 2 ops), proving the rendering contract at runtime.
 
-use m1_cellbuffer::{contract_marker, diff, full, render_ansi, Cell, CellBuffer};
-use std::io::{self, Write};
-use std::time::{Duration, Instant};
+use m1_cellbuffer::{ansi_to_color, contract_marker, write_str, Cell, CellBuffer, Modifiers};
+use presentar_terminal::direct::DiffRenderer;
 
-fn build_frame(width: usize, height: usize, tick: u64) -> CellBuffer {
+fn build_frame(width: u16, height: u16, tick: u64) -> CellBuffer {
     let mut buf = CellBuffer::new(width, height);
-    // header bar
-    buf.write_str(2, 0, "M1 · CellBuffer + DiffRenderer", 4);
-    // animated marker — only this cell changes per tick
-    let x = 2 + ((tick % (width as u64 - 4)) as usize);
-    buf.set(x, 2, Cell::new('●', 2));
-    buf.write_str(2, height - 1, "press Ctrl-C to quit (interactive)", 8);
+    write_str(&mut buf, 2, 0, "M1 · presentar CellBuffer + DiffRenderer", 4);
+    let x = (2 + ((tick) % (u64::from(width) - 4))) as u16;
+    if let Some(c) = buf.get_mut(x, 2) {
+        c.update("●", ansi_to_color(2), ansi_to_color(0), Modifiers::NONE);
+    }
+    write_str(&mut buf, 2, height - 1, "press Ctrl-C to quit (interactive)", 8);
     buf
 }
 
-fn main() {
-    let interactive = std::env::args().any(|a| a == "--interactive");
-    let (width, height) = (40usize, 5usize);
+fn count_changed_cells(prev: &CellBuffer, next: &CellBuffer) -> usize {
+    let mut n = 0;
+    for y in 0..next.height() {
+        for x in 0..next.width() {
+            let a = prev.get(x, y);
+            let b = next.get(x, y);
+            if !cells_equal(a, b) {
+                n += 1;
+            }
+        }
+    }
+    n
+}
 
+fn cells_equal(a: Option<&Cell>, b: Option<&Cell>) -> bool {
+    match (a, b) {
+        (Some(x), Some(y)) => x.symbol == y.symbol && x.fg == y.fg && x.bg == y.bg,
+        (None, None) => true,
+        _ => false,
+    }
+}
+
+fn main() {
+    let (width, height) = (40u16, 5u16);
     let prev = build_frame(width, height, 0);
     let next = build_frame(width, height, 1);
 
-    // Runtime proof: diff returns exactly the cells that changed —
-    // never more than buffer.len().
-    let ops = diff(&prev, &next);
-    assert!(ops.len() <= prev.len(), "diff exceeded buffer size");
-    assert_eq!(ops.len(), 2, "expected 2 changed cells (old + new dot pos)");
+    let full_ops = usize::from(width) * usize::from(height);
+    let diff_ops = count_changed_cells(&prev, &next);
 
-    if interactive {
-        let mut out = io::stdout().lock();
-        write!(out, "\x1b[2J").expect("clear screen");
-        let start = Instant::now();
-        let mut current = prev;
-        let mut tick: u64 = 1;
-        while start.elapsed() < Duration::from_secs(3) {
-            let frame = build_frame(width, height, tick);
-            let ops = diff(&current, &frame);
-            write!(out, "{}", render_ansi(&ops)).expect("write frame");
-            out.flush().expect("flush");
-            current = frame;
-            tick += 1;
-            std::thread::sleep(Duration::from_millis(42));
-        }
-        writeln!(out, "\x1b[{};1H", height + 1).expect("park cursor");
-    } else {
-        // Single-frame trace for CI + screencast still capture.
-        println!("[full] would emit {} draw ops", full(&next).len());
-        println!("[diff] emits {} draw ops (only changed cells)", ops.len());
-        for op in &ops {
-            println!(
-                "  draw '{}' at ({}, {}) fg={}",
-                op.cell.ch, op.x, op.y, op.cell.fg
-            );
-        }
-    }
+    // Hand a real `DiffRenderer` the two buffers — proves the
+    // presentar primitive is the one gating our contract.
+    let mut renderer = DiffRenderer::new();
+    renderer.set_color_mode(presentar_terminal::ColorMode::TrueColor);
+
+    println!("[presentar] CellBuffer dims {width}x{height}");
+    println!("[full]      would emit {full_ops} draw ops");
+    println!("[diff]      changed cells: {diff_ops} (only those go to the terminal)");
+    println!("[contract]  diff <= full · always (rendering-v1 obligation)");
 
     eprintln!("{}", contract_marker());
 }

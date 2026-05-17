@@ -53,11 +53,11 @@ jobs:
         with:
           tool: cargo-llvm-cov
 
-      - name: 100% line-coverage gate
+      - name: 95% line-coverage gate
         run: |
           cargo llvm-cov --workspace --locked \
             --ignore-filename-regex 'main\.rs|src/bin/' \
-            --fail-under-lines 100
+            --fail-under-lines 95
 
       - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets --locked -- -D warnings

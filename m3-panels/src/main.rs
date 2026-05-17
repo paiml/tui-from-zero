@@ -2,7 +2,7 @@
 //! M3.2 demo: render a static dashboard composing CpuGrid + Sparkline +
 //! Memory bar + ProcessTable into one CellBuffer, print it as ANSI.
 
-use m1_cellbuffer::{full, render_ansi};
+use m1_cellbuffer::render_to_ansi;
 use m3_panels::{contract_marker, render_dashboard, Process};
 
 fn main() {
@@ -34,7 +34,7 @@ fn main() {
         .collect();
 
     let buf = render_dashboard(&cores, &processes, 11.4, 16.0, &samples);
-    println!("{}", render_ansi(&full(&buf)));
+    println!("{}", render_to_ansi(&buf));
     println!();
     println!(
         "Composed: CpuGrid({}) + Sparkline({}) + MemoryBar + ProcessTable({})",

@@ -16,6 +16,7 @@ path = "src/main.rs"
 
 [dependencies]
 m1-cellbuffer = { path = "../m1-cellbuffer" }
+presentar-core = { package = "aprender-present-core", path = "../../aprender/crates/aprender-present-core" }
 
 [dev-dependencies]
 proptest = "1"

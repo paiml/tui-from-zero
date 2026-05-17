@@ -1,10 +1,10 @@
 #![allow(clippy::expect_used, clippy::panic, clippy::unwrap_used)]
-//! M4.2 demo: render a frame, take a snapshot, diff it against a golden,
-//! report PASS/FAIL. This is the "test a TUI without Selenium" pattern.
+//! M4.2 demo: render a frame, take a snapshot, diff against a golden, report PASS/FAIL.
 
-use m1_cellbuffer::{Cell, CellBuffer};
+use m1_cellbuffer::{ansi_to_color, CellBuffer, Modifiers};
 use m1_widgets::{Container, Direction, Label, Rect, Widget};
 use m4_tests::{contract_marker, diff_snapshot, snapshot};
+use presentar_core::Color;
 
 const GOLDEN: &str = "\
 ┌──────────────────────────────┐
@@ -14,21 +14,33 @@ const GOLDEN: &str = "\
 └──────────────────────────────┘
 ";
 
+fn paint_border(buf: &mut CellBuffer) {
+    let (w, h) = (buf.width(), buf.height());
+    let fg = ansi_to_color(6);
+    let bg = Color::TRANSPARENT;
+    let put = |buf: &mut CellBuffer, x: u16, y: u16, ch: &str| {
+        if let Some(c) = buf.get_mut(x, y) {
+            c.update(ch, fg, bg, Modifiers::NONE);
+        }
+    };
+    for x in 0..w {
+        put(buf, x, 0, "─");
+        put(buf, x, h - 1, "─");
+    }
+    for y in 0..h {
+        put(buf, 0, y, "│");
+        put(buf, w - 1, y, "│");
+    }
+    put(buf, 0, 0, "┌");
+    put(buf, w - 1, 0, "┐");
+    put(buf, 0, h - 1, "└");
+    put(buf, w - 1, h - 1, "┘");
+}
+
 fn build_frame() -> CellBuffer {
     let mut buf = CellBuffer::new(32, 5);
-    for x in 0..32 {
-        buf.set(x, 0, Cell::new('─', 6));
-        buf.set(x, 4, Cell::new('─', 6));
-    }
-    for y in 0..5 {
-        buf.set(0, y, Cell::new('│', 6));
-        buf.set(31, y, Cell::new('│', 6));
-    }
-    buf.set(0, 0, Cell::new('┌', 6));
-    buf.set(31, 0, Cell::new('┐', 6));
-    buf.set(0, 4, Cell::new('└', 6));
-    buf.set(31, 4, Cell::new('┘', 6));
-    let row = Container {
+    paint_border(&mut buf);
+    let col = Container {
         direction: Direction::Column,
         children: vec![
             Box::new(Label {
@@ -45,7 +57,7 @@ fn build_frame() -> CellBuffer {
             }),
         ],
     };
-    row.paint(
+    col.paint(
         &mut buf,
         Rect {
             x: 1,
@@ -70,6 +82,5 @@ fn main() {
     } else {
         println!("✘ mismatches: {mismatches:?}");
     }
-
     eprintln!("{}", contract_marker());
 }

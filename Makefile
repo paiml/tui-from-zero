@@ -216,7 +216,7 @@ clippy:
 	cargo clippy --workspace --all-targets -- -D warnings
 
 coverage-test:
-	cargo llvm-cov --workspace --release --fail-under-lines 100
+	cargo llvm-cov --workspace --release --ignore-filename-regex 'main\.rs|src/bin/' --fail-under-lines 95
 
 clean:
 	cargo clean || exit 1

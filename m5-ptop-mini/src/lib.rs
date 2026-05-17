@@ -84,6 +84,7 @@ pub fn contract_marker() -> &'static str {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
     use m4_tests::diff_snapshot;

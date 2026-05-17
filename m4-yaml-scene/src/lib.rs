@@ -12,7 +12,7 @@
 //! The lesson video shows the full YAML parsing variant; this loader
 //! is the pedagogical minimum that demonstrates the concept.
 
-use m1_cellbuffer::{Cell, CellBuffer};
+use m1_cellbuffer::CellBuffer;
 use m1_widgets::{Block, Label, Rect, Widget};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -85,9 +85,7 @@ pub fn parse(src: &str) -> Result<Vec<SceneItem>, SceneError> {
                     .flatten()
                     .unwrap_or('#');
                 out.push((
-                    Box::new(Block {
-                        cell: Cell::new(ch, fg),
-                    }),
+                    Box::new(Block { ch, fg }),
                     Rect {
                         x: rect.0,
                         y: rect.1,
@@ -166,33 +164,33 @@ fn parse_kv(s: &str) -> Vec<(&str, &str)> {
     out
 }
 
-fn rect_from_kv(kv: &[(&str, &str)]) -> (usize, usize, usize, usize) {
+fn rect_from_kv(kv: &[(&str, &str)]) -> (u16, u16, u16, u16) {
     let x = kv
         .iter()
         .find_map(|(k, v)| (k == &"x").then(|| v.parse().ok()))
         .flatten()
-        .unwrap_or(0);
+        .unwrap_or(0u16);
     let y = kv
         .iter()
         .find_map(|(k, v)| (k == &"y").then(|| v.parse().ok()))
         .flatten()
-        .unwrap_or(0);
+        .unwrap_or(0u16);
     let w = kv
         .iter()
         .find_map(|(k, v)| (k == &"w").then(|| v.parse().ok()))
         .flatten()
-        .unwrap_or(0);
+        .unwrap_or(0u16);
     let h = kv
         .iter()
         .find_map(|(k, v)| (k == &"h").then(|| v.parse().ok()))
         .flatten()
-        .unwrap_or(1);
+        .unwrap_or(1u16);
     (x, y, w, h)
 }
 
 /// Apply every (widget, rect) into a fresh `CellBuffer`.
 #[must_use]
-pub fn compile(src: &str, width: usize, height: usize) -> CellBuffer {
+pub fn compile(src: &str, width: u16, height: u16) -> CellBuffer {
     let mut buf = CellBuffer::new(width, height);
     if let Ok(scene) = parse(src) {
         for (w, r) in scene {
@@ -242,8 +240,8 @@ mod tests {
     #[test]
     fn compile_paints_label_into_buffer() {
         let buf = compile(r#"label x=0 y=0 w=4 h=1 fg=4 text="abc""#, 10, 1);
-        assert_eq!(buf.get(0, 0).ch, 'a');
-        assert_eq!(buf.get(2, 0).ch, 'c');
+        assert_eq!(buf.get(0, 0).expect("cell").symbol.as_str(), "a");
+        assert_eq!(buf.get(2, 0).expect("cell").symbol.as_str(), "c");
     }
 
     #[test]
@@ -260,7 +258,7 @@ mod tests {
         // catches it and returns a default buffer (no widgets painted).
         let buf = compile("unknown x=0 y=0", 4, 1);
         for x in 0..4 {
-            assert_eq!(buf.get(x, 0).ch, ' ');
+            assert_eq!(buf.get(x, 0).expect("cell").symbol.as_str(), " ");
         }
     }
 
