@@ -14,6 +14,10 @@ path = "src/lib.rs"
 name = "input-demo"
 path = "src/main.rs"
 
+[dependencies]
+crossterm = "0.28"
+m2-elm-counter = { path = "../m2-elm-counter" }
+
 [dev-dependencies]
 proptest = "1"
 

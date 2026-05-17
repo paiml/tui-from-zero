@@ -1,8 +1,41 @@
-//! Runtime half of the proof for tui-rendering-v1.
-//! Exiting zero with the contract marker on stderr is the runtime check
-//! that pairs with `pv validate contracts/tui-rendering-v1.yaml`.
+#![allow(clippy::expect_used, clippy::panic, clippy::unwrap_used)]
+//! M1.2 demo: composite widget — a Container with 3 Labels arranged in a Row.
+
+use m1_cellbuffer::{full, render_ansi, CellBuffer};
+use m1_widgets::{contract_marker, Container, Direction, Label, Rect, Widget};
 
 fn main() {
-    let marker = m1_widgets::contract_marker();
-    eprintln!("{marker}");
+    let row = Container {
+        direction: Direction::Row,
+        children: vec![
+            Box::new(Label {
+                text: " RENDER".into(),
+                fg: 4,
+            }),
+            Box::new(Label {
+                text: " REACT".into(),
+                fg: 5,
+            }),
+            Box::new(Label {
+                text: " COMPOSE".into(),
+                fg: 2,
+            }),
+        ],
+    };
+    let mut buf = CellBuffer::new(60, 1);
+    row.paint(
+        &mut buf,
+        Rect {
+            x: 0,
+            y: 0,
+            w: 60,
+            h: 1,
+        },
+    );
+    // Print the composed line as ANSI (single row, no animation).
+    println!("{}", render_ansi(&full(&buf)));
+    println!();
+    println!("Container::Row laid out 3 Labels across 60 columns.");
+    println!("Each child occupies an even slice — no child overflows its parent.");
+    eprintln!("{}", contract_marker());
 }

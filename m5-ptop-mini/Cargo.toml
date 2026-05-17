@@ -14,6 +14,15 @@ path = "src/lib.rs"
 name = "ptop-mini"
 path = "src/main.rs"
 
+[dependencies]
+m1-cellbuffer = { path = "../m1-cellbuffer" }
+m1-widgets = { path = "../m1-widgets" }
+m2-elm-counter = { path = "../m2-elm-counter" }
+m2-input = { path = "../m2-input" }
+m3-panels = { path = "../m3-panels" }
+m3-sparkline = { path = "../m3-sparkline" }
+m4-tests = { path = "../m4-tests" }
+
 [dev-dependencies]
 proptest = "1"
 
