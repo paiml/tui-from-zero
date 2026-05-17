@@ -19,13 +19,13 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
 name = "aprender-compute"
-version = "0.33.0"
+version = "0.31.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d6bff7b8f4edab24a4e49032011ad0352303995771cd958626d129197e3c5e1"
+checksum = "946c5ef1369e3aee38b770625a62dc072e80598cf00b9f01c1ecdb3cca637b34"
 dependencies = [
  "anyhow",
- "aprender-gemm-codegen",
- "aprender-quant",
+ "aprender-gemm-codegen 0.31.2",
+ "aprender-quant 0.31.2",
  "chrono",
  "hostname",
  "num_cpus",
@@ -35,6 +35,37 @@ dependencies = [
  "serde_yaml_ng",
  "thiserror",
  "toml",
+]
+
+[[package]]
+name = "aprender-compute"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d6bff7b8f4edab24a4e49032011ad0352303995771cd958626d129197e3c5e1"
+dependencies = [
+ "anyhow",
+ "aprender-gemm-codegen 0.33.0",
+ "aprender-quant 0.33.0",
+ "chrono",
+ "hostname",
+ "num_cpus",
+ "provable-contracts-macros",
+ "serde",
+ "serde_json",
+ "serde_yaml_ng",
+ "thiserror",
+ "toml",
+]
+
+[[package]]
+name = "aprender-gemm-codegen"
+version = "0.31.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4728c271299e5133afd7bea5fc1c29c886b722c49d5f301b01bf4836d0305708"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -50,11 +81,24 @@ dependencies = [
 
 [[package]]
 name = "aprender-present-core"
+version = "0.31.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f5a8411be715b3c76f44bf2391e13fa57e76682553d383a39d2427d7b9fa0bc"
+dependencies = [
+ "aprender-compute 0.31.2",
+ "provable-contracts-macros",
+ "serde",
+ "serde_json",
+ "serde_yaml_ng",
+]
+
+[[package]]
+name = "aprender-present-core"
 version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28c635f1848f2d2ae598a7c64c8f250f918d69e332e72a26e703c64de377172b"
 dependencies = [
- "aprender-compute",
+ "aprender-compute 0.33.0",
  "provable-contracts-macros",
  "serde",
  "serde_json",
@@ -67,13 +111,45 @@ version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "991bca797cadff599a7886653cbad42eb247f463410530970e83033561e89cdc"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
  "bitvec",
  "compact_str",
  "crossterm",
  "thiserror",
  "unicode-segmentation",
  "unicode-width",
+]
+
+[[package]]
+name = "aprender-present-test"
+version = "0.31.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81d86a89cdf591700b9471a7438ab8be2e06ca4d9d495ed73e3e1e1a667ece48"
+dependencies = [
+ "aprender-present-core 0.31.2",
+ "aprender-present-test-macros",
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "aprender-present-test-macros"
+version = "0.31.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "520c6444105e762f298efa3bd2d8c7f146746d33461d39f61cf2f8dd6561183c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "aprender-quant"
+version = "0.31.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf3f48ecad540ed322953ac6b11377080e7384e80955f4bb0ad650e68f370fb6"
+dependencies = [
+ "half",
 ]
 
 [[package]]
@@ -466,9 +542,11 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 name = "m1-cellbuffer"
 version = "0.1.0"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
  "aprender-present-terminal",
+ "aprender-present-test",
  "crossterm",
+ "m4-tests",
  "proptest",
 ]
 
@@ -476,8 +554,10 @@ dependencies = [
 name = "m1-widgets"
 version = "0.1.0"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
+ "aprender-present-test",
  "m1-cellbuffer",
+ "m4-tests",
  "proptest",
 ]
 
@@ -485,9 +565,11 @@ dependencies = [
 name = "m2-elm-counter"
 version = "0.1.0"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
+ "aprender-present-test",
  "m1-cellbuffer",
  "m1-widgets",
+ "m4-tests",
  "proptest",
 ]
 
@@ -495,6 +577,7 @@ dependencies = [
 name = "m2-input"
 version = "0.1.0"
 dependencies = [
+ "aprender-present-test",
  "crossterm",
  "m2-elm-counter",
  "proptest",
@@ -504,10 +587,12 @@ dependencies = [
 name = "m3-panels"
 version = "0.1.0"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
+ "aprender-present-test",
  "m1-cellbuffer",
  "m1-widgets",
  "m3-sparkline",
+ "m4-tests",
  "proptest",
 ]
 
@@ -515,8 +600,10 @@ dependencies = [
 name = "m3-sparkline"
 version = "0.1.0"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
+ "aprender-present-test",
  "m1-cellbuffer",
+ "m4-tests",
  "proptest",
 ]
 
@@ -524,7 +611,8 @@ dependencies = [
 name = "m4-tests"
 version = "0.1.0"
 dependencies = [
- "aprender-present-core",
+ "aprender-present-core 0.33.0",
+ "aprender-present-test",
  "m1-cellbuffer",
  "m1-widgets",
  "proptest",
@@ -534,8 +622,10 @@ dependencies = [
 name = "m4-yaml-scene"
 version = "0.1.0"
 dependencies = [
+ "aprender-present-test",
  "m1-cellbuffer",
  "m1-widgets",
+ "m4-tests",
  "proptest",
 ]
 
@@ -543,6 +633,7 @@ dependencies = [
 name = "m5-ptop-mini"
 version = "0.1.0"
 dependencies = [
+ "aprender-present-test",
  "crossterm",
  "m1-cellbuffer",
  "m1-widgets",

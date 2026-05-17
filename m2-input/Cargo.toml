@@ -20,6 +20,7 @@ m2-elm-counter = { path = "../m2-elm-counter" }
 
 [dev-dependencies]
 proptest = "1"
+presentar-test = { package = "aprender-present-test", version = "0.31" }
 
 [lints]
 workspace = true

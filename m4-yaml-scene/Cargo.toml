@@ -20,6 +20,8 @@ m1-widgets = { path = "../m1-widgets" }
 
 [dev-dependencies]
 proptest = "1"
+presentar-test = { package = "aprender-present-test", version = "0.31" }
+m4-tests = { path = "../m4-tests" }
 
 [lints]
 workspace = true

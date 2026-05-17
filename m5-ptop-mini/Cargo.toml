@@ -26,6 +26,7 @@ m4-tests = { path = "../m4-tests" }
 
 [dev-dependencies]
 proptest = "1"
+presentar-test = { package = "aprender-present-test", version = "0.31" }
 
 [lints]
 workspace = true

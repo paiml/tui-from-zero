@@ -21,6 +21,7 @@ presentar-core = { package = "aprender-present-core", version = "0.33" }
 
 [dev-dependencies]
 proptest = "1"
+presentar-test = { package = "aprender-present-test", version = "0.31" }
 
 [lints]
 workspace = true
