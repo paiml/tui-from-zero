@@ -8,72 +8,78 @@
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](Cargo.toml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#install)
+[![Coverage](https://img.shields.io/badge/coverage-95%25%20gate-brightgreen.svg)](#quality-gates)
 [![pv contracts](https://img.shields.io/badge/pv%20contracts-3%20valid-brightgreen.svg)](contracts/)
 
-Companion repository for the **TUI from Zero** Coursera course — the next course in the
+Companion repository for the **TUI from Zero** Coursera course — a planned addition to the
 [Rust for Data Engineering](https://www.coursera.org/specializations/rust-for-data-engineering)
-specialization, built around [`presentar`](https://github.com/paiml/aprender) — the pure-Rust
-TUI framework from `aprender`.
+specialization (slot TBD; see [`docs/tui-from-zero-design.md`](../course-studio/docs/tui-from-zero-design.md)
+in the `course-studio` repo for the in-progress curriculum spec).
 
-In five weeks the learner builds a 200-line `ptop` clone, every rung up the stack — cell
-buffer → widget → event loop → declarative scene → composed app — gated by three named
-YAML contracts that [`pv`](https://github.com/paiml/aprender/tree/main/crates/aprender-contracts-cli)
-validates and that Lean 4 proves the invariants of.
+The course teaches `presentar` — the pure-Rust TUI framework from
+[`paiml/aprender`](https://github.com/paiml/aprender). Every crate in this workspace **depends
+on real, published `aprender-present-*` crates from crates.io** (v0.33 at time of writing) and
+**uses `aprender-present-test` (probar) as a dev-dependency** for snapshot testing.
 
-## The `pv` workflow
+## How this differs from a typical "from-zero" book
 
-**Every demo in this repo is gated by `pv`.** The YAML contracts in [`contracts/`](contracts/)
-are the single source of truth; the nine Rust crates are the implementations `pv` scores them
-against; the Lean 4 modules in [`lean/`](lean/) discharge the universal claim.
+- **No reinvention.** The cell buffer, diff renderer, widget trait, color type, and 20+ TUI widgets all come from `presentar` — the same crate the production `ptop` ships against. Your `m1-cellbuffer::CellBuffer` IS `presentar_terminal::CellBuffer`.
+- **Contracts as the source of truth.** Three YAML files in [`contracts/`](contracts/) declare every invariant; [`pv`](https://github.com/paiml/aprender/tree/main/crates/aprender-contracts-cli) validates them; runtime asserts in each demo binary check the obligation at exit; [Lean 4 theorems](lean/TuiFromZero/Theorems/) discharge the universal claim.
+- **Probar snapshot tests, one per crate.** `tests/probar_snapshot.rs` in each crate uses the snapshot pattern pioneered by `jugar-probar` / `aprender-present-test` to assert presentar's CellBuffer output against an inline golden — TUI testing without a browser, without Selenium.
 
-```bash
-make install      # cargo install aprender-contracts-cli
-make validate     # pv validate every contract — schema gate
-make score        # pv score every contract  — 5-dim rubric grade
-make lint         # pv lint   every contract — validate + audit + score
-make demo         # run the 9 demo binaries pv's contracts gate
-make lean-build   # cd lean && lake build  — type-check every theorem (L5 proof)
-make ci           # fmt + clippy + test + 100% cov + pv lint
+## The three pillars (Render · React · Compose)
+
+| Pillar | Contract | What it gates | Demo crates that prove it at runtime |
+|---|---|---|---|
+| **Render** | [`tui-rendering-v1`](contracts/tui-rendering-v1.yaml) | CellBuffer bounds safety · diff-render equivalence · zero-alloc steady state · double-width Unicode safety · color-mode totality | [`m1-cellbuffer`](m1-cellbuffer/), [`m1-widgets`](m1-widgets/), [`m4-tests`](m4-tests/) |
+| **React** | [`tui-lifecycle-v1`](contracts/tui-lifecycle-v1.yaml) | Elm-style update totality · view referential transparency · event-replay determinism · terminal-restore on quit | [`m2-elm-counter`](m2-elm-counter/), [`m2-input`](m2-input/) |
+| **Compose** | [`tui-panels-v1`](contracts/tui-panels-v1.yaml) | Composite widgets never overflow parent rect · panel layout non-overlap · monotonic progress · cost display non-negative | [`m3-sparkline`](m3-sparkline/), [`m3-panels`](m3-panels/), [`m4-yaml-scene`](m4-yaml-scene/), [`m5-ptop-mini`](m5-ptop-mini/) |
+
+Current `pv score` (5-dimension rubric):
+
+```
+tui-lifecycle-v1 — 0.81 (B)  Spec 0.75 · Falsify 1.00 · Kani 0.50 · Lean 1.00 · Bind 1.00
+tui-rendering-v1 — 0.65 (C)  Spec 0.75 · Falsify 1.00 · Kani 0.66 · Lean 1.00 · Bind 0.00
+tui-panels-v1    — 0.60 (D)  Spec 0.75 · Falsify 1.00 · Kani 0.44 · Lean 1.00 · Bind 0.00
 ```
 
-See `make help` for the full list.
-
-## The three pillars
-
-| Pillar | Contract | What it proves | Demo crates |
-|---|---|---|---|
-| **Render** | [`tui-rendering-v1.yaml`](contracts/tui-rendering-v1.yaml) | Diff renderer never emits more cells than the buffer holds; double-width chars never overflow; steady-state rendering is zero-alloc | [`m1-cellbuffer`](m1-cellbuffer/) [`m1-widgets`](m1-widgets/) [`m4-tests`](m4-tests/) |
-| **React** | [`tui-lifecycle-v1.yaml`](contracts/tui-lifecycle-v1.yaml) | Elm-style: every Event maps to exactly one State, every State maps to exactly one Frame; event replay is deterministic | [`m2-elm-counter`](m2-elm-counter/) [`m2-input`](m2-input/) |
-| **Compose** | [`tui-panels-v1.yaml`](contracts/tui-panels-v1.yaml) | Composite widgets satisfy the measure/layout contract — no widget overflows its parent rect; BrailleGraph sub-cell math is exact | [`m3-sparkline`](m3-sparkline/) [`m3-panels`](m3-panels/) [`m4-yaml-scene`](m4-yaml-scene/) [`m5-ptop-mini`](m5-ptop-mini/) |
-
-Each contract declares a formula, domain, codomain, invariants, proof obligations,
-falsification tests, and a Kani harness stub. `pv validate` enforces the schema; `pv score`
-grades each contract across five dimensions (Spec / Falsify / Kani / Lean / Bind); Lean 4
-discharges the universal claim at L5; the demo binaries assert the runtime half of the proof.
+Lifting Kani (model-checking) and Bind (presentar binding registry) is the next iteration.
+See [`contracts/binding.yaml`](contracts/binding.yaml) for the contract → crate map.
 
 ## Demos
 
-| Crate | Lesson coverage | Gating contract | Demo binary |
+Nine workspace crates, one demo binary each. Each binary prints `contract: <name> — OK` on
+stderr at exit; the [CI workflow](.github/workflows/ci.yml) greps for that marker as the
+runtime half of the proof.
+
+| Crate | What it teaches | Gating contract | Demo binary |
 |---|---|---|---|
-| [`m1-cellbuffer`](m1-cellbuffer/) | M1.1 cell buffer + diff renderer | `tui-rendering-v1` | `cellbuffer-demo` |
-| [`m1-widgets`](m1-widgets/) | M1.2 Widget trait + Container/Row/Column | `tui-rendering-v1` | `widgets-demo` |
-| [`m2-elm-counter`](m2-elm-counter/) | M2.1 Elm architecture in 80 lines | `tui-lifecycle-v1` | `counter-demo` |
-| [`m2-input`](m2-input/) | M2.2 crossterm event loop + key bindings | `tui-lifecycle-v1` | `input-demo` |
-| [`m3-sparkline`](m3-sparkline/) | M3.1 BrailleGraph + sparkline | `tui-panels-v1` | `sparkline-demo` |
-| [`m3-panels`](m3-panels/) | M3.2 ProcessTable + CpuGrid | `tui-panels-v1` | `panels-demo` |
-| [`m4-yaml-scene`](m4-yaml-scene/) | M4.1 `.prs` YAML-driven scene | `tui-panels-v1` | `scene-demo` |
-| [`m4-tests`](m4-tests/) | M4.2 pure-Rust TUI test harness | `tui-rendering-v1` | `tests-demo` |
-| [`m5-ptop-mini`](m5-ptop-mini/) | M5 capstone — 200-LOC ptop clone | `tui-panels-v1` | `ptop-mini` |
+| [`m1-cellbuffer`](m1-cellbuffer/) | Cell buffer + diff renderer (re-exports `presentar_terminal::{Cell, CellBuffer, DiffRenderer}`) | `tui-rendering-v1` | `cellbuffer-demo` |
+| [`m1-widgets`](m1-widgets/) | A `Widget` trait + `Container`/`Row`/`Column` composite, painting into `presentar`'s CellBuffer | `tui-rendering-v1` | `widgets-demo` |
+| [`m2-elm-counter`](m2-elm-counter/) | The Elm architecture in ~80 lines: `init() / update(state, msg) / view(state)` with a proptest harness proving replay determinism | `tui-lifecycle-v1` | `counter-demo` |
+| [`m2-input`](m2-input/) | Total `dispatch(KeyEvent) -> Option<Msg>` via `crossterm` (the same input layer presentar uses) | `tui-lifecycle-v1` | `input-demo` |
+| [`m3-sparkline`](m3-sparkline/) | Unicode block-glyph sparkline (8 levels, single-cell resolution) | `tui-panels-v1` | `sparkline-demo` |
+| [`m3-panels`](m3-panels/) | `CpuGrid` + `ProcessTable` + memory bar — composed into one frame | `tui-panels-v1` | `panels-demo` |
+| [`m4-yaml-scene`](m4-yaml-scene/) | A minimal `.prs` scene loader that compiles `label/block` declarations into a Widget tree | `tui-panels-v1` | `scene-demo` |
+| [`m4-tests`](m4-tests/) | `snapshot()` / `diff_snapshot()` — pure-Rust TUI testing without a browser | `tui-rendering-v1` | `tests-demo` |
+| [`m5-ptop-mini`](m5-ptop-mini/) | The capstone — composes every prior crate into a live ptop-style dashboard with a `--ci` flag for the deterministic single-frame smoke | `tui-panels-v1` | `ptop-mini` |
 
-## The four pillars (of how this is taught)
+`make demo` runs all nine in single-frame mode and asserts every contract marker.
+`cargo run --release --bin ptop-mini` (no `--ci`) enters the live crossterm loop on a real
+terminal — press `q`, `Esc`, or `Ctrl-C` to exit.
 
-1. **Render** — Cells, escapes, diff. The terminal is a grid. (M1)
-2. **React** — Elm-style: Event → State → Diff → Draw. (M2)
-3. **Compose** — Widgets, panels, layout. (M3)
-4. **Declare + Verify** — YAML scenes + pure-Rust testing. (M4)
+## Stack
 
-The capstone (M5) composes all four into a working `ptop-mini`.
+| Layer | Where it comes from | Version |
+|---|---|---|
+| Terminal I/O | `crossterm` (presentar uses this too) | 0.28 |
+| `CellBuffer`, `Cell`, `DiffRenderer`, `Color`, widget trait | [`aprender-present-core`](https://crates.io/crates/aprender-present-core) + [`aprender-present-terminal`](https://crates.io/crates/aprender-present-terminal) on crates.io | 0.33 |
+| Snapshot testing (probar) | [`aprender-present-test`](https://crates.io/crates/aprender-present-test) as dev-dep | 0.31 |
+| Contract validator + scorer | [`aprender-contracts-cli`](https://crates.io/crates/aprender-contracts-cli) (the `pv` binary) | latest |
+| Lean 4 proofs | `lake build` over [`lean/TuiFromZero/Theorems/`](lean/TuiFromZero/Theorems/) (no Mathlib dependency — builds in <1 s) | v4.13.0 |
+| Property tests | `proptest` | 1.x |
+
+No git deps, no path deps to a sibling checkout — everything fetches from `crates.io`.
 
 ## Install
 
@@ -81,12 +87,14 @@ The capstone (M5) composes all four into a working `ptop-mini`.
 make install
 ```
 
+This runs `cargo install aprender-contracts-cli` for the `pv` binary if it isn't already on
+`PATH`. Everything else (presentar, probar, crossterm) downloads through `cargo build`.
+
 ### Prerequisites
 
 - Rust 1.75+ (`rustup default stable`)
-- `aprender-contracts-cli` for `pv` (the contract validator + scorer)
-- Optional: `elan` + Lean 4 toolchain for `make lean-build`
-- Optional: `cargo-llvm-cov` for the 100% line-coverage gate
+- Optional: `elan` + Lean 4 v4.13 for `make lean-build`
+- Optional: [`cargo-llvm-cov`](https://crates.io/crates/cargo-llvm-cov) for `make coverage-test`
 
 ## Quick start
 
@@ -96,39 +104,63 @@ cd tui-from-zero
 make install
 
 # Gate the contracts (schema + rubric)
-make validate      # 0 errors per contract
-make score         # prints the 5-dim rubric per contract
+make validate       # pv validate per contract — 0 errors expected
+make score          # pv score per contract — prints the 5-dim rubric
 
-# Build + run the demos pv's contracts gate
+# Build + run every demo
 make build
 make demo
 
-# Type-check the Lean proofs
+# Type-check the Lean 4 proofs (~1 s)
 make lean-build
 
-# Full pre-merge gate (fmt + clippy + test + 100% cov + pv lint)
-make ci
+# Probar snapshot tests (per-crate tests/probar_snapshot.rs)
+cargo test --workspace --test probar_snapshot
+
+# Full pre-merge gate
+make ci             # fmt + clippy + workspace tests + coverage + pv lint
 ```
+
+## Quality gates
+
+`make ci` runs locally; the [CI workflow](.github/workflows/ci.yml) runs the same gates plus
+runtime contract assertions on every push.
+
+| Gate | Tool | Threshold |
+|---|---|---|
+| Formatting | `cargo fmt --all --check` | clean |
+| Build | `cargo build --workspace --locked` | clean |
+| Tests (unit + integration + probar snapshots) | `cargo test --workspace --locked` | **80 tests** currently pass |
+| Line coverage | `cargo llvm-cov --workspace --fail-under-lines 95` | **95% gate** (local achieves 100%) |
+| Clippy | `cargo clippy --workspace --all-targets -- -D warnings` | clean |
+| Contract validation | `pv validate contracts/<name>.yaml` × 3 | 0 errors per contract |
+| Contract lint (8 gates) | `pv lint contracts/<name>.yaml` × 3 | `Result: PASS` |
+| Runtime contract markers | `cargo run --bin <demo>` × 9 | every binary emits its `contract: ... — OK` |
+| Lean 4 proofs | `cd lean && lake build` | 6 theorems compile |
+| PMAT comply (advisory) | `pmat comply check` | `continue-on-error: true` |
 
 ## Repository layout
 
 ```
 contracts/
-  tui-rendering-v1.yaml      ← M1 + M4-tests render contract
-  tui-lifecycle-v1.yaml      ← M2 lifecycle contract
-  tui-panels-v1.yaml         ← M3 + M4-scene + M5 panels contract
-m1-cellbuffer/               ← cell buffer + diff renderer
-m1-widgets/                  ← Widget trait + Container/Row/Column
-m2-elm-counter/              ← Elm-style counter
-m2-input/                    ← crossterm event loop
-m3-sparkline/                ← BrailleGraph + sparkline
-m3-panels/                   ← ProcessTable + CpuGrid
-m4-yaml-scene/               ← .prs YAML-driven scene
-m4-tests/                    ← pure-Rust TUI test harness
-m5-ptop-mini/                ← the 200-LOC capstone
-lean/                        ← Lean 4 proofs of the contract invariants
-.github/workflows/ci.yml     ← pv-gated CI
-Makefile                     ← all pv subcommands + quality gates
+  tui-rendering-v1.yaml      Render-pillar invariants
+  tui-lifecycle-v1.yaml      React-pillar invariants
+  tui-panels-v1.yaml         Compose-pillar invariants
+  binding.yaml               Contract → Rust crate binding manifest
+  binding-index.json         Same in JSON for tooling
+m1-cellbuffer/               re-export of presentar_terminal types + helpers
+m1-widgets/                  Widget trait + Container/Row/Column + Block/Label
+m2-elm-counter/              init/update/view (Elm architecture)
+m2-input/                    KeyEvent → Msg dispatch (totality)
+m3-sparkline/                Unicode block-glyph sparkline
+m3-panels/                   CpuGrid + ProcessTable + memory bar
+m4-yaml-scene/               .prs scene compiler → Widget tree
+m4-tests/                    snapshot() + diff_snapshot() (probar-style)
+m5-ptop-mini/                capstone — composes everything into a live ptop dashboard
+lean/                        Lean 4 lakefile + theorems per pillar
+.github/workflows/ci.yml     pv-gated CI
+Makefile                     pv + cargo + lake one-button targets
+assets/hero.{svg,png}        the image at the top of this README
 ```
 
 ## License
