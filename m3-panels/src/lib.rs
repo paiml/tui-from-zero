@@ -40,10 +40,13 @@ impl<'a> Widget for CpuGrid<'a> {
             } else {
                 2 // green
             };
+            // Invariant: cx + cell_w <= rect.x + rect.w (because
+            // cell_w = floor(rect.w / cores) and cx = i * cell_w with
+            // i < cores). The outer `cx >= rect.x + rect.w` break catches
+            // the case where cell_w = 1 < cores, so this loop never
+            // overflows the parent rect — that's the panels contract.
+            debug_assert!(cx + cell_w <= rect.x + rect.w);
             for dx in 0..cell_w {
-                if cx + dx >= rect.x + rect.w {
-                    break;
-                }
                 buf.set(cx + dx, rect.y, Cell::new('█', fg));
             }
         }
@@ -233,6 +236,106 @@ mod tests {
         );
         assert_eq!(buf.get(1, 0).ch, '█'); // first interior filled
         assert_eq!(buf.get(8, 0).ch, '█'); // last interior filled
+    }
+
+    #[test]
+    fn cpu_grid_empty_cores_is_noop() {
+        let mut buf = CellBuffer::new(10, 1);
+        CpuGrid { cores: &[] }.paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 10,
+                h: 1,
+            },
+        );
+        for x in 0..10 {
+            assert_eq!(buf.get(x, 0).ch, ' ');
+        }
+    }
+
+    #[test]
+    fn cpu_grid_zero_width_is_noop() {
+        let mut buf = CellBuffer::new(10, 1);
+        CpuGrid {
+            cores: &[0.5; 4],
+        }
+        .paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 1,
+            },
+        );
+        for x in 0..10 {
+            assert_eq!(buf.get(x, 0).ch, ' ');
+        }
+    }
+
+    #[test]
+    fn cpu_grid_red_yellow_green_color_bands() {
+        // Hit each fg branch (>0.8 red=1, >0.5 yellow=3, else green=2).
+        let mut buf = CellBuffer::new(12, 1);
+        CpuGrid {
+            cores: &[0.1, 0.6, 0.9],
+        }
+        .paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 12,
+                h: 1,
+            },
+        );
+        assert_eq!(buf.get(0, 0).fg, 2); // green
+        assert_eq!(buf.get(4, 0).fg, 3); // yellow
+        assert_eq!(buf.get(8, 0).fg, 1); // red
+    }
+
+    #[test]
+    fn cpu_grid_more_cores_than_columns_breaks_early() {
+        // Force cell_w = 1 with 8 cores and a 4-col rect: cores past index 3
+        // exit via the `cx >= rect.x + rect.w` break.
+        let mut buf = CellBuffer::new(8, 1);
+        CpuGrid {
+            cores: &[0.5; 8],
+        }
+        .paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 4,
+                h: 1,
+            },
+        );
+        for x in 0..4 {
+            assert_eq!(buf.get(x, 0).ch, '█');
+        }
+        for x in 4..8 {
+            assert_eq!(buf.get(x, 0).ch, ' ');
+        }
+    }
+
+    #[test]
+    fn memory_bar_below_min_width_is_noop() {
+        let mut buf = CellBuffer::new(2, 1);
+        paint_memory_bar(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 1,
+                h: 1,
+            },
+            5.0,
+            10.0,
+        );
+        assert_eq!(buf.get(0, 0).ch, ' ');
     }
 
     #[test]

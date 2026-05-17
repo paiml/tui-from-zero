@@ -259,4 +259,25 @@ mod tests {
         assert!(contract_marker().starts_with("contract:"));
         assert!(contract_marker().ends_with("— OK"));
     }
+
+    #[test]
+    fn dims_and_emptiness_track_construction() {
+        let buf = CellBuffer::new(3, 2);
+        assert_eq!(buf.width(), 3);
+        assert_eq!(buf.height(), 2);
+        assert_eq!(buf.len(), 6);
+        assert!(!buf.is_empty());
+    }
+
+    #[test]
+    fn clear_fills_every_cell() {
+        let mut buf = CellBuffer::new(4, 3);
+        buf.clear(Cell::new('Z', 5));
+        for y in 0..3 {
+            for x in 0..4 {
+                assert_eq!(buf.get(x, y).ch, 'Z');
+                assert_eq!(buf.get(x, y).fg, 5);
+            }
+        }
+    }
 }

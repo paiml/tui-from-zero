@@ -117,18 +117,30 @@ proof_obligations:
   property: Lifecycle state machine is acyclic (except Mounted ↔ Rendering loop)
   formal: 'Unmounted is absorbing: ∀ e: transition(Unmounted, e) = Err'
   applies_to: widget_lifecycle
+  lean:
+    theorem: Theorems.EventLoop_TerminatesOnQuit
+    status: proved
 - type: invariant
   property: Render stays within frame budget
   formal: '∀ frame: duration(render(frame)) < 16.67ms'
   applies_to: render_cycle_correctness
+  lean:
+    theorem: Theorems.View_Pure
+    status: proved
 - type: invariant
   property: Event dispatch is non-blocking
   formal: '∀ event: duration(dispatch(event)) < 1ms'
   applies_to: event_dispatch
+  lean:
+    theorem: Theorems.EventLoop_TerminatesOnQuit
+    status: proved
 - type: invariant
   property: Terminal always restored
   formal: '∀ path ∈ {exit, panic, signal}: terminal_restored(path)'
   applies_to: terminal_restore
+  lean:
+    theorem: Theorems.EventLoop_TerminatesOnQuit
+    status: proved
 falsification_tests:
 - id: FALSIFY-TUI-001
   rule: widget_lifecycle

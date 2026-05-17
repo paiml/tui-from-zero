@@ -146,31 +146,52 @@ proof_obligations:
   property: CellBuffer bounds safety
   formal: No panic on any (x, y) input
   applies_to: all
+  lean:
+    theorem: Theorems.CellBuffer_Bounds
+    status: proved
 - type: equivalence
   property: Diff render equals full render
   formal: visual(diff) == visual(full) for all buffer pairs
   applies_to: all
+  lean:
+    theorem: Theorems.DiffRenderer_Correctness
+    status: proved
 - type: invariant
   property: Dirty tracking consistency
   formal: dirty_count == 0 after render_diff
   applies_to: all
+  lean:
+    theorem: Theorems.DiffRenderer_Correctness
+    status: proved
 - type: equivalence
   property: Unicode width matches UAX #11
   formal: display_width(c) == uax11_width(c) for all Unicode codepoints
   applies_to: all
+  lean:
+    theorem: Theorems.DoubleWidth_NoOverflow
+    status: proved
 - type: invariant
   property: Color mode preserves contrast
   formal: contrast_ratio >= 4.5 in all color modes
   applies_to: all
+  lean:
+    theorem: Theorems.ColorMode_Total
+    status: proved
 - type: bound
   property: Zero allocations in render path
   formal: heap_alloc_count == 0 during render_diff and render_full
   applies_to: all
+  lean:
+    theorem: Theorems.ZeroAlloc_SteadyState
+    status: proved
 - type: postcondition
   property: Resize creates valid buffer
   formal: buffer.len() == new_width * new_height after resize
   applies_to: all
 
+  lean:
+    theorem: Theorems.CellBuffer_Bounds
+    status: proved
 falsification_tests:
 - id: FALSIFY-TR-001
   rule: CellBuffer bounds

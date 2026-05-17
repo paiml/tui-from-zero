@@ -1,0 +1,40 @@
+# Contract → Rust binding manifest for tui-from-zero.
+#
+# Each entry binds a YAML contract to one or more Rust crates in the
+# workspace. The demo binary listed under each crate is the runtime
+# proof: exiting zero with the contract marker on stderr is the
+# pairing assertion that complements `pv validate`.
+#
+# This file feeds `pv lint`'s gate 7 (reverse-coverage) when invoked
+# with `--binding contracts/binding.yaml`. It also satisfies
+# pmat CB-1354 (Contract Query Readiness).
+
+version: 1.0.0
+
+bindings:
+  tui-rendering-v1:
+    description: Render-pillar contract — CellBuffer + DiffRenderer correctness.
+    rust_crates:
+      - m1-cellbuffer    # foundation type
+      - m1-widgets       # widget composite paints into the buffer
+      - m4-tests         # snapshot harness verifies cellbuffer output
+    lean_module: TuiFromZero.Theorems.CellBuffer
+    runtime_marker: "contract: tui-rendering-v1 holds — OK"
+
+  tui-lifecycle-v1:
+    description: React-pillar contract — Elm-style event loop + dispatch.
+    rust_crates:
+      - m2-elm-counter   # init/update/view + proptest replay determinism
+      - m2-input         # crossterm KeyEvent → Msg dispatch (totality)
+    lean_module: TuiFromZero.Theorems.Lifecycle
+    runtime_marker: "contract: tui-lifecycle-v1 holds — OK"
+
+  tui-panels-v1:
+    description: Compose-pillar contract — widgets stay inside their parent rect.
+    rust_crates:
+      - m3-sparkline     # BrailleGraph sub-cell glyph mapping
+      - m3-panels        # CpuGrid + ProcessTable + MemoryBar composer
+      - m4-yaml-scene    # .prs YAML-driven scene loader
+      - m5-ptop-mini     # capstone — composes all of the above
+    lean_module: TuiFromZero.Theorems.Panels
+    runtime_marker: "contract: tui-panels-v1 holds — OK"

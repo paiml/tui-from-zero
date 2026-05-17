@@ -1,0 +1,85 @@
+{
+  "version": "1.0.0",
+  "description": "Mapping from YAML contracts to Rust crate bindings — the runtime half of each provable contract.",
+  "bindings": [
+    {
+      "contract": "tui-rendering-v1",
+      "crate": "m1-cellbuffer",
+      "binary": "cellbuffer-demo",
+      "obligations_proved_at_runtime": [
+        "No panic on any (x, y)",
+        "Visual equivalence",
+        "All dirty bits cleared after render",
+        "Buffer dimensions match after resize"
+      ]
+    },
+    {
+      "contract": "tui-rendering-v1",
+      "crate": "m1-widgets",
+      "binary": "widgets-demo",
+      "obligations_proved_at_runtime": [
+        "Width function total for all codepoints"
+      ]
+    },
+    {
+      "contract": "tui-rendering-v1",
+      "crate": "m4-tests",
+      "binary": "tests-demo",
+      "obligations_proved_at_runtime": [
+        "Visual equivalence"
+      ]
+    },
+    {
+      "contract": "tui-lifecycle-v1",
+      "crate": "m2-elm-counter",
+      "binary": "counter-demo",
+      "obligations_proved_at_runtime": [
+        "Unmounted is absorbing state",
+        "No out-of-bounds write to cell buffer"
+      ]
+    },
+    {
+      "contract": "tui-lifecycle-v1",
+      "crate": "m2-input",
+      "binary": "input-demo",
+      "obligations_proved_at_runtime": [
+        "Event dispatch is non-blocking"
+      ]
+    },
+    {
+      "contract": "tui-panels-v1",
+      "crate": "m3-sparkline",
+      "binary": "sparkline-demo",
+      "obligations_proved_at_runtime": [
+        "progress ∈ [0.0, 1.0]"
+      ]
+    },
+    {
+      "contract": "tui-panels-v1",
+      "crate": "m3-panels",
+      "binary": "panels-demo",
+      "obligations_proved_at_runtime": [
+        "No panel overlap at any terminal size",
+        "No cell belongs to two panels"
+      ]
+    },
+    {
+      "contract": "tui-panels-v1",
+      "crate": "m4-yaml-scene",
+      "binary": "scene-demo",
+      "obligations_proved_at_runtime": [
+        "Pure function of (w, h)"
+      ]
+    },
+    {
+      "contract": "tui-panels-v1",
+      "crate": "m5-ptop-mini",
+      "binary": "ptop-mini",
+      "obligations_proved_at_runtime": [
+        "No panel overlap at any terminal size",
+        "Tool progress never decreases",
+        "Cumulative cost never decreases"
+      ]
+    }
+  ]
+}

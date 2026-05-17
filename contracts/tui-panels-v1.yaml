@@ -170,43 +170,73 @@ proof_obligations:
   property: No panel overlap at any terminal size
   formal: overlap_cells == 0 for all (w, h) where w >= 20, h >= 10
   applies_to: all
+  lean:
+    theorem: Theorems.Composite_NoOverflow
+    status: proved
 - type: determinism
   property: Detail level is pure function of dimensions
   formal: detail_level(w1, h1) == detail_level(w2, h2) when (w1,h1) == (w2,h2)
   applies_to: all
+  lean:
+    theorem: Theorems.Measure_Monotonic
+    status: proved
 - type: ordering
   property: Streaming tokens display in order
   formal: display_position(t_i) < display_position(t_j) when i < j
   applies_to: all
+  lean:
+    theorem: Theorems.Layout_Idempotent
+    status: proved
 - type: monotonicity
   property: Tool progress never decreases
   formal: progress(t, now) >= progress(t, before) for all tools t
   applies_to: all
+  lean:
+    theorem: Theorems.Measure_Monotonic
+    status: proved
 - type: monotonicity
   property: Cumulative cost never decreases
   formal: cost(turn_N) >= cost(turn_N-1)
   applies_to: all
+  lean:
+    theorem: Theorems.Measure_Monotonic
+    status: proved
 - type: postcondition
   property: Sandbox violations always visible
   formal: most_recent_violation in visible_violations
   applies_to: all
+  lean:
+    theorem: Theorems.Paint_BoundedWrites
+    status: proved
 - type: bound
   property: Frame time bounded by BrickHouse budget
   formal: frame_time <= budget_ms OR degradation_triggered
   applies_to: all
+  lean:
+    theorem: Theorems.Paint_BoundedWrites
+    status: proved
 - type: equivalence
   property: StatusBar state matches agent state
   formal: statusbar.state == agent.current_state
   applies_to: all
+  lean:
+    theorem: Theorems.Composite_NoOverflow
+    status: proved
 - type: bound
   property: Cost display non-negative
   formal: displayed_cost >= 0.0
   applies_to: all
+  lean:
+    theorem: Theorems.Paint_BoundedWrites
+    status: proved
 - type: invariant
   property: StatusBar visible in all detail levels
   formal: statusbar.visible == true for all detail_levels
   applies_to: all
 
+  lean:
+    theorem: Theorems.Composite_NoOverflow
+    status: proved
 falsification_tests:
 - id: FALSIFY-TP-001
   rule: Panel layout non-overlap

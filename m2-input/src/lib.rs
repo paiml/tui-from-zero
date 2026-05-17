@@ -68,6 +68,12 @@ mod tests {
     }
 
     #[test]
+    fn r_uppercase_and_lowercase_map_to_reset() {
+        assert_eq!(dispatch(k(KeyCode::Char('r'))), Some(Msg::Reset));
+        assert_eq!(dispatch(k(KeyCode::Char('R'))), Some(Msg::Reset));
+    }
+
+    #[test]
     fn contract_marker_matches() {
         assert!(contract_marker().starts_with("contract:"));
         assert!(contract_marker().ends_with("— OK"));

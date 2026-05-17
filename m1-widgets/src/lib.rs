@@ -185,6 +185,27 @@ mod tests {
     }
 
     #[test]
+    fn empty_container_is_noop() {
+        let row: Container = Container {
+            direction: Direction::Row,
+            children: vec![],
+        };
+        let mut buf = CellBuffer::new(4, 1);
+        row.paint(
+            &mut buf,
+            Rect {
+                x: 0,
+                y: 0,
+                w: 4,
+                h: 1,
+            },
+        );
+        for x in 0..4 {
+            assert_eq!(buf.get(x, 0), Cell::default());
+        }
+    }
+
+    #[test]
     fn contract_marker_matches() {
         assert!(contract_marker().starts_with("contract:"));
         assert!(contract_marker().ends_with("— OK"));

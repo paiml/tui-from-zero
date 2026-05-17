@@ -15,7 +15,7 @@
 use m1_cellbuffer::{Cell, CellBuffer};
 use m1_widgets::{Block, Label, Rect, Widget};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SceneError {
     UnknownWidget(String),
     MalformedLine(String),
@@ -96,7 +96,10 @@ pub fn parse(src: &str) -> Result<Vec<SceneItem>, SceneError> {
                     },
                 ));
             }
-            "" => return Err(SceneError::MalformedLine(line.to_string())),
+            // The empty-kind branch is unreachable in practice — `line` is
+            // already trimmed and non-empty by this point, and `splitn(2,
+            // is_whitespace)` always yields at least one token. Keeping
+            // `MalformedLine` in the public API for future extensions.
             other => return Err(SceneError::UnknownWidget(other.to_string())),
         }
     }
@@ -222,11 +225,12 @@ mod tests {
     }
 
     #[test]
-    fn unknown_widget_is_error() {
-        assert!(matches!(
-            parse("foobar x=0"),
-            Err(SceneError::UnknownWidget(_))
-        ));
+    fn unknown_widget_returns_err() {
+        let err = parse("foobar x=0").err();
+        assert_eq!(
+            err,
+            Some(SceneError::UnknownWidget("foobar".to_string()))
+        );
     }
 
     #[test]
@@ -240,6 +244,59 @@ mod tests {
         let buf = compile(r#"label x=0 y=0 w=4 h=1 fg=4 text="abc""#, 10, 1);
         assert_eq!(buf.get(0, 0).ch, 'a');
         assert_eq!(buf.get(2, 0).ch, 'c');
+    }
+
+    #[test]
+    fn display_renders_both_variants() {
+        let u = SceneError::UnknownWidget("foo".into());
+        assert!(format!("{u}").contains("foo"));
+        let m = SceneError::MalformedLine("oops".into());
+        assert!(format!("{m}").contains("oops"));
+    }
+
+    #[test]
+    fn compile_swallows_parse_errors() {
+        // An unknown widget in source returns Err from parse() — compile
+        // catches it and returns a default buffer (no widgets painted).
+        let buf = compile("unknown x=0 y=0", 4, 1);
+        for x in 0..4 {
+            assert_eq!(buf.get(x, 0).ch, ' ');
+        }
+    }
+
+    #[test]
+    fn parse_kv_handles_unquoted_values() {
+        let scene = parse("block x=2 y=1 w=3 h=1 fg=5 ch=*").expect("parse");
+        assert_eq!(scene.len(), 1);
+    }
+
+    #[test]
+    fn parse_kv_handles_trailing_quoted() {
+        // Quote at end of string without explicit closing quote — closes at EOF.
+        let scene = parse("label x=0 y=0 w=4 h=1 fg=1 text=\"oops").expect("parse");
+        assert_eq!(scene.len(), 1);
+    }
+
+    #[test]
+    fn parse_kv_handles_no_equals_token() {
+        // A bare token with no `=` after the kind is tolerated (skipped).
+        let scene = parse("label foo").expect("parse");
+        assert_eq!(scene.len(), 1);
+    }
+
+    #[test]
+    fn parse_kv_handles_trailing_whitespace() {
+        // Triggers the EOF-after-whitespace break in parse_kv's outer loop.
+        let scene = parse("label x=0 y=0 w=2 h=1 fg=4 text=\"a\"   ").expect("parse");
+        assert_eq!(scene.len(), 1);
+    }
+
+    #[test]
+    fn parse_kv_direct_with_trailing_whitespace() {
+        // Direct test of the private parse_kv to exercise the EOF break
+        // after the inner whitespace-skip in its outer while loop.
+        let kv = parse_kv("x=1   ");
+        assert_eq!(kv, vec![("x", "1")]);
     }
 
     #[test]

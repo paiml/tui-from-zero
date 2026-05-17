@@ -169,6 +169,35 @@ mod tests {
     }
 
     #[test]
+    fn quit_is_a_noop_on_state() {
+        let s = State { count: 7 };
+        assert_eq!(update(s, Msg::Quit), s);
+    }
+
+    #[test]
+    fn view_renders_full_frame() {
+        let buf = view(State { count: 42 });
+        // 40x7 = 280 cells
+        assert_eq!(buf.width(), 40);
+        assert_eq!(buf.height(), 7);
+        // corners painted
+        assert_eq!(buf.get(0, 0).ch, '┌');
+        assert_eq!(buf.get(39, 0).ch, '┐');
+        assert_eq!(buf.get(0, 6).ch, '└');
+        assert_eq!(buf.get(39, 6).ch, '┘');
+        // count text appears (somewhere on row 2)
+        let row2: String = (0..40).map(|x| buf.get(x, 2).ch).collect();
+        assert!(row2.contains("count = 42"), "row 2 missing count text: {row2:?}");
+    }
+
+    #[test]
+    fn view_handles_negative_count() {
+        let buf = view(State { count: -1 });
+        let row2: String = (0..40).map(|x| buf.get(x, 2).ch).collect();
+        assert!(row2.contains("-1"));
+    }
+
+    #[test]
     fn contract_marker_matches() {
         assert!(contract_marker().starts_with("contract:"));
         assert!(contract_marker().ends_with("— OK"));
