@@ -15,7 +15,6 @@ name = "cellbuffer-demo"
 path = "src/main.rs"
 
 [dependencies]
-crossterm = "0.28"
 presentar-terminal = { package = "aprender-present-terminal", version = "0.33" }
 presentar-core = { package = "aprender-present-core", version = "0.33" }
 
